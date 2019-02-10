@@ -1,0 +1,87 @@
+<resources>
+    <string name="app_name">Admin</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+
+
+    <string name="main_users">Users</string>
+    <string name="main_keys">Keys</string>
+    <string name="main_locks">Locks</string>
+    <string name="main_tags">Tags</string>
+    <string name="main_settings">Settings</string>
+    <string name="main_help">Help</string>
+    <string name="main_qr_code">QR</string>
+    <string name="main_nfc_tag">NFC tag</string>
+    <string name="main_button">Button</string>
+
+    <string name="key_label">Keys</string>
+    <string name="user_label">Users</string>
+    <string name="lock_label">Locks</string>
+    <string name="tag_label">Tags</string>
+    <string name="settings_label">Settings</string>
+    <string name="help_label">Help</string>
+    <string name="qr_reader_label">QR scanner</string>
+
+    <string name="key_edit_label">Key edit</string>
+    <string name="user_edit_label">User edit</string>
+    <string name="lock_edit_label">Lock edit</string>
+
+
+    <string name="title_set_qr_on_start">Set QR scanner on start screen</string>
+
+
+    <string name="ssid_title">SSID: </string>
+    <string name="bssid_title">BSSID: </string>
+    <string name="password_title">Password: </string>
+    <string name="device_count_title">Device count: </string>
+    <string name="confirm">Confirm</string>
+    <string name="wifi_5g_message">Device dose not support 5G Wifi</string>
+
+    <string name="title_lock1_title">Lock 1 title:</string>
+    <string name="title_lock2_title">Lock 2 title:</string>
+    <string name="title_hint">press to enter</string>
+    <string name="title_wifi_settings">Wi-Fi settings:</string>
+    <string name="title_access_point">Access point</string>
+    <string name="title_station">Station</string>
+    <string name="title_ssid">SSID:</string>
+    <string name="title_password">Password:</string>
+    <string name="title_admin">Reset admin data</string>
+    <string name="title_user">Reset user data</string>
+    <string name="title_read_lock">Read synchronized lock data</string>
+    <string name="title_reset">Reset:</string>
+    <string name="title_synchronize">Start synchronization</string>
+    <string name="title_press_to_enter">press to enter</string>
+
+    <string name="title_choose_lock">Choose lock</string>
+    <string name="title_read_key">Read key</string>
+    <string name="title_play_key">Play key</string>
+    <string name="title_save_key">Save key</string>
+    <string name="title_key_title">Key title:</string>
+
+    <string name="title_user_name">User name</string>
+    <string name="title_select_lock">Select lock</string>
+    <string name="title_select_key">Select key</string>
+    <string name="title_selected_lock">Selected lock</string>
+    <string name="title_selected_key">Selected key</string>
+    <string name="title_select_start_datetime">Select start time</string>
+    <string name="title_select_stop_datetime">Select stop time</string>
+    <string name="title_selected_start_datetime">Selected start time</string>
+    <string name="title_selected_stop_datetime">Selected stop time</string>
+    <string name="title_save">Save</string>
+    <string name="title_share_as_text">Share as text</string>
+    <string name="title_share_as_qr">Share as qr</string>
+
+
+    <string name="title_door1_select">Door 1 title</string>
+    <string name="title_door2_select">Door 2 title</string>
+    <string name="title_generate_qr">Generate QR code</string>
+    <string name="title_save_qr">Save QR code</string>
+    <string name="title_write_nfc">Generate NFC tag</string>
+    <string name="title_nfc_status">NFC status</string>
+
+
+
+</resources>

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.trifonsheykin.admin">
+
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="true" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Lock.LockMainActivity"
+            android:label="@string/lock_label">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.trifonsheykin.admin.MainActivity" />
+        </activity>
+        <activity
+            android:name=".Lock.LockEditActivity"
+            android:label="@string/lock_edit_label">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.trifonsheykin.admin.Lock.LockMainActivity" />
+        </activity>
+        <activity
+            android:name=".Key.KeyMainActivity"
+            android:label="@string/key_label">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.trifonsheykin.admin.MainActivity" />
+        </activity>
+        <activity
+            android:name=".Key.KeyEditActivity"
+            android:label="@string/key_edit_label">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.trifonsheykin.admin.Key.KeyMainActivity" />
+        </activity>
+        <activity
+            android:name=".User.UserMainActivity"
+            android:label="@string/user_label">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.trifonsheykin.admin.MainActivity" />
+        </activity>
+        <activity
+            android:name=".User.UserEditActivity"
+            android:label="@string/user_edit_label">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.trifonsheykin.admin.User.UserMainActivity" />
+        </activity>
+        <activity
+            android:name=".Key.KeySelectActivity"
+            android:label="@string/title_select_key">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.trifonsheykin.admin.Key.KeySelectActivity"/>
+        </activity>
+        <activity
+            android:name=".Lock.LockSelectActivity"
+            android:label="@string/title_select_lock">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.trifonsheykin.admin.Lock.LockSelectActivity"/>
+        </activity>
+        <activity
+            android:name=".TagActivity"
+            android:label="@string/tag_label">
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.trifonsheykin.admin.MainActivity" />
+        </activity>
+        <activity
+            android:name=".QrReadActivity"
+            android:label="@string/qr_reader_label">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.trifonsheykin.admin.MainActivity" />
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/settings_label">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.trifonsheykin.admin.MainActivity" />
+        </activity>
+        <activity android:name=".HelpActivity"
+            android:label="@string/help_label">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.trifonsheykin.admin.MainActivity" />
+        </activity>
+    </application>
+
+</manifest>

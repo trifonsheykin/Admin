@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".User.UserEditActivity">
+
+
+    <EditText
+        android:id="@+id/et_user_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:ems="10"
+        android:hint="@string/title_user_name"
+        android:inputType="textPersonName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/b_select_lock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/title_select_lock"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/et_user_name" />
+
+    <Button
+        android:id="@+id/b_select_key"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/title_select_key"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/b_select_lock" />
+
+    <TextView
+        android:id="@+id/tv_selected_lock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:text="@string/title_selected_lock"
+        app:layout_constraintStart_toEndOf="@+id/b_select_lock"
+        app:layout_constraintTop_toBottomOf="@+id/et_user_name" />
+
+    <TextView
+        android:id="@+id/tv_selected_key"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="36dp"
+        android:text="@string/title_selected_key"
+        app:layout_constraintStart_toEndOf="@+id/b_select_key"
+        app:layout_constraintTop_toBottomOf="@+id/tv_selected_lock" />
+
+    <Button
+        android:id="@+id/b_select_start_datetime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/title_select_start_datetime"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/b_select_key" />
+
+    <Button
+        android:id="@+id/b_select_stop_datetime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/title_select_stop_datetime"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/b_select_start_datetime" />
+
+    <TextView
+        android:id="@+id/tv_selected_start_datetime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="36dp"
+        android:text="@string/title_selected_start_datetime"
+        app:layout_constraintStart_toEndOf="@+id/b_select_start_datetime"
+        app:layout_constraintTop_toBottomOf="@+id/tv_selected_key" />
+
+    <TextView
+        android:id="@+id/tv_selected_stop_datetime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="36dp"
+        android:text="@string/title_selected_stop_datetime"
+        app:layout_constraintStart_toEndOf="@+id/b_select_stop_datetime"
+        app:layout_constraintTop_toBottomOf="@+id/tv_selected_start_datetime" />
+
+    <Button
+        android:id="@+id/b_save"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/title_save"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/b_share_qr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="63dp"
+        android:text="@string/title_share_as_qr"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/b_select_stop_datetime" />
+
+    <Button
+        android:id="@+id/b_share_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="69dp"
+        android:layout_marginBottom="33dp"
+        android:text="@string/title_share_as_text"
+        app:layout_constraintBottom_toTopOf="@+id/b_save"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/b_share_qr" />
+
+    <ImageView
+        android:id="@+id/iv_qr_code"
+        android:layout_width="154dp"
+        android:layout_height="134dp"
+        android:layout_marginStart="85dp"
+        android:layout_marginEnd="44dp"
+        android:layout_marginBottom="8dp"
+        android:contentDescription="@string/main_qr_code"
+        app:layout_constraintBottom_toTopOf="@+id/tv_text_code"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/b_share_qr"
+        app:srcCompat="@drawable/pic_qr_scan" />
+
+    <TextView
+        android:id="@+id/tv_text_code"
+        android:layout_width="226dp"
+        android:layout_height="58dp"
+        android:layout_marginStart="35dp"
+        android:layout_marginBottom="24dp"
+        android:text="@string/title_share_as_text"
+        app:layout_constraintBottom_toTopOf="@+id/b_save"
+        app:layout_constraintStart_toEndOf="@+id/b_share_text" />
+
+</android.support.constraint.ConstraintLayout>
