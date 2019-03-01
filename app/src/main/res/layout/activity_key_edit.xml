@@ -6,71 +6,25 @@
     android:layout_height="match_parent"
     tools:context=".Key.KeyEditActivity">
 
-    <TextView
-        android:id="@+id/tv_lock1_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="32dp"
-        android:text="@string/title_lock1_title"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tv_lock2_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/title_lock2_title"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_lock1_title" />
-
-    <TextView
-        android:id="@+id/tv_lock1_editable"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="32dp"
-        android:text="empty"
-        app:layout_constraintStart_toEndOf="@+id/tv_lock1_title"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tv_lock2_editable"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="16dp"
-        android:text="empty"
-        app:layout_constraintStart_toEndOf="@+id/tv_lock2_title"
-        app:layout_constraintTop_toBottomOf="@+id/tv_lock1_editable" />
-
     <Button
         android:id="@+id/b_choose_lock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="14dp"
         android:text="@string/title_choose_lock"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_lock2_title" />
+        app:layout_constraintTop_toBottomOf="@+id/rg_lock_titles" />
 
     <TextView
         android:id="@+id/tv_lock_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginLeft="32dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="28dp"
         android:text="Status"
         app:layout_constraintStart_toEndOf="@+id/b_choose_lock"
-        app:layout_constraintTop_toBottomOf="@+id/tv_lock2_editable" />
+        app:layout_constraintTop_toBottomOf="@+id/rg_lock_titles" />
 
     <Button
         android:id="@+id/b_read_key"
@@ -128,5 +82,35 @@
         android:text="@string/title_save_key"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/et_key_title" />
+
+
+    <RadioGroup
+        android:id="@+id/rg_lock_titles"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <RadioButton
+            android:id="@+id/rb_lock1_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/title_door1_select"
+            tools:layout_editor_absoluteX="37dp"
+            tools:layout_editor_absoluteY="16dp" />
+
+        <RadioButton
+            android:id="@+id/rb_lock2_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/title_door2_select"
+            tools:layout_editor_absoluteX="36dp"
+            tools:layout_editor_absoluteY="48dp" />
+
+    </RadioGroup>
+
+
 
 </android.support.constraint.ConstraintLayout>

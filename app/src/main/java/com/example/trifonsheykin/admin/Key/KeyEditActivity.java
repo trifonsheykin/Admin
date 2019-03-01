@@ -12,6 +12,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.example.trifonsheykin.admin.DbHelper;
@@ -31,14 +33,17 @@ import javax.crypto.spec.SecretKeySpec;
 
 public class KeyEditActivity extends AppCompatActivity implements View.OnClickListener{
 
-    private TextView tvLock1;
-    private TextView tvLock2;
+
     private Button bChooseLock;
     private TextView tvLockStatus;
     private Button bReadKey;
     private Button bPlayKey;
     private Button bSaveKey;
     private EditText etKeyTitle;
+    private RadioGroup radioGroup;
+    private RadioButton rbDoor1Title;
+    private RadioButton rbDoor2Title;
+
     private long rowId;
     KeyNetworkTask keyNetworkTask;
     private SQLiteDatabase mDb;
@@ -72,6 +77,7 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
     private static final byte ADMIN = 9;
     private static final int CHANNEL_1 = 0;
     private static final int CHANNEL_2 = 1;
+    private byte channel = 0;
     private static final int STATION = 1;
     private static final int SOFTAP = 2;
 
@@ -80,21 +86,34 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_key_edit);
 
-        tvLock1 = findViewById(R.id.tv_lock1_editable);
-        tvLock2 = findViewById(R.id.tv_lock2_editable);
         bChooseLock = findViewById(R.id.b_choose_lock);
         tvLockStatus = findViewById(R.id.tv_lock_status);
         bReadKey = findViewById(R.id.b_read_key);
         bPlayKey = findViewById(R.id.b_play_key);
-        bSaveKey = (Button) findViewById(R.id.b_save_key);
-        etKeyTitle = (EditText) findViewById(R.id.et_key_title);
-
+        bSaveKey = findViewById(R.id.b_save_key);
+        etKeyTitle = findViewById(R.id.et_key_title);
+        radioGroup = findViewById(R.id.rg_lock_titles);
+        rbDoor1Title = findViewById(R.id.rb_lock1_title);
+        rbDoor2Title = findViewById(R.id.rb_lock2_title);
 
         bChooseLock.setOnClickListener(this);
         bReadKey.setOnClickListener(this);
         bPlayKey.setOnClickListener(this);
         bSaveKey.setOnClickListener(this);
 
+
+
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if(rbDoor1Title.isChecked()){
+                    channel = CHANNEL_1;
+                }else if(rbDoor2Title.isChecked()){
+                    channel = CHANNEL_2;
+                }
+            }
+        });
+        rbDoor1Title.setChecked(true);
         Intent intentThatStartedThisActivity = getIntent();
 
         // Create a DB helper (this will create the DB if run for the first time)
@@ -174,7 +193,7 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
                 else{
                     ContentValues cv = new ContentValues();
                     cv.put(LockDataContract.COLUMN_KEY_NAME, etKeyTitle.getText().toString());
-                    cv.put(LockDataContract.COLUMN_KEY_LOCKS, tvLock1.getText().toString() + ", " + tvLock2.getText().toString());
+                    cv.put(LockDataContract.COLUMN_KEY_LOCKS, rbDoor1Title.getText().toString() + ", " + rbDoor2Title.getText().toString());
                     cv.put(LockDataContract.COLUMN_KEY_DATA , wiegandRealPass);
                     mDb.insert(LockDataContract.TABLE_NAME_KEY_DATA, null, cv);
                     intent = new Intent();
@@ -251,8 +270,8 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
                 cursor.moveToPosition(0);
                 String lock1Title = cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_LOCK1_TITLE));
                 String lock2Title = cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_LOCK2_TITLE));
-                tvLock1.setText(lock1Title);
-                tvLock2.setText(lock2Title);
+                rbDoor1Title.setText(lock1Title);
+                rbDoor2Title.setText(lock2Title);
 
                 /**
                  * we need in bundle:
@@ -349,14 +368,14 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
                         plaintext[1] = XORcalc(temp);//XOR
                         System.arraycopy(admId, 0, plaintext, 2, admId.length);//userID[USER_ID_SIZE];//4
                         plaintext[6] = 0;// p1s0; 0 - save pass
-                        plaintext[7] = CHANNEL_1;// 0//TODO add channel selection
+                        plaintext[7] = channel;//
                         break;
                     case PLAY_KEY:
                         plaintext[0] = 10;//MESSAGE TYPE: PASS_ACTION 10
                         plaintext[1] = XORcalc(temp);//XOR
                         System.arraycopy(admId, 0, plaintext, 2, admId.length);//userID[USER_ID_SIZE];//4
                         plaintext[6] = 1;// p1s0; 1 - play pass
-                        plaintext[7] = CHANNEL_1;// 0//TODO add channel selection
+                        plaintext[7] = channel;//
                         System.arraycopy(wiegandRealPass, 0, plaintext, 8, wiegandRealPass.length);//userID[USER_ID_SIZE];//4
                         break;
                 }

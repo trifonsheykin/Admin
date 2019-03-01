@@ -33,6 +33,7 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 import java.util.Calendar;
 
 import android.util.Base64;
+import android.widget.Toast;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -192,7 +193,8 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
             @Override
             public void onClick(View v) {
                byte[] tmp = generateAccessCode();
-               String encoded = Base64.encodeToString(tmp, Base64.DEFAULT);
+               String encoded = Base64.encodeToString(tmp, Base64.NO_WRAP);
+                Toast.makeText(getApplicationContext(), "String len: " + encoded.length(), Toast.LENGTH_LONG);
 
                 Intent sendIntent = new Intent();
                 sendIntent.setAction(Intent.ACTION_SEND);
@@ -210,7 +212,7 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
             @Override
             public void onClick(View v) {
                 byte[] tmp = generateAccessCode();
-                String encoded = Base64.encodeToString(tmp, Base64.DEFAULT);
+                String encoded = Base64.encodeToString(tmp, Base64.NO_WRAP);
                 MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
                 try{
                     BitMatrix bitMatrix = multiFormatWriter.encode(encoded, BarcodeFormat.QR_CODE, 200, 200);
@@ -324,7 +326,7 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
         byte[] doorId;
         byte userTag;
 
-        byte[] accessCode = new byte[57];
+        byte[] accessCode = new byte[78];
 
         aesCursor = mDb.query(
                 LockDataContract.TABLE_NAME_AES_DATA,
@@ -384,10 +386,18 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
         System.arraycopy(doorId, 0, accessCode, 52, 4);
         accessCode[56] = userTag;
 
+        System.arraycopy(doorAccessTime, 0, accessCode, 57, 20);
+        byte[] toXor = new byte[77];
+        System.arraycopy(accessCode, 0, toXor, 0, 77);
+        accessCode[77] = XORcalc(toXor);
         return accessCode;
     }
 
-
+    public byte XORcalc(byte[] input){
+        byte output = input[0];
+        for(int i=1; i<input.length; i++) output = (byte) (output ^ input[i]);
+        return output;
+    }
 
     private byte[] ipStrToHex(String ip){
         byte[] output = new byte[4];
@@ -437,7 +447,7 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
         output[1] = (byte) (tempX_ | temp_X);
 
         temp_X = day % 10;
-        tempX_ = day / 10 % 10;
+        tempX_ = (day / 10 % 10) << 4;
         output[2] = (byte) (tempX_ | temp_X);
 
         temp_X = hour % 10;

@@ -48,6 +48,7 @@ import java.net.Socket;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -63,7 +64,7 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
     private static final int SYNC_FIRST = 1;
     private static final int SYNC_XOR = 2;
     private static final int SYNC_FLOW = 3;
-    private static final int LAST_USER_BOUND = 20;
+    private static final int LAST_USER_BOUND = 100;
 
     private static final int DOORID_PAGE = 1;
     private static final int CWMODE_PAGE = 2;
@@ -673,12 +674,11 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
                         nos.write(encryptedData);
                         nos.flush();
                         byteCnt = nis.read(buffer, 0, 100); //This is blocking
-                        TimeUnit.MILLISECONDS.sleep(100);
+                        TimeUnit.MILLISECONDS.sleep(200);
                         dialogStage = readData(dialogStage, byteCnt, buffer);
 
                         if (dialogStage == SYNC_FLOW){
                             for(byte[] bytes: inputData){
-                                TimeUnit.MILLISECONDS.sleep(100);
                                 encryptedData = encrypt(bytes, initVectorTX, synchroKey);
                                 System.arraycopy(encryptedData, bytes.length - 16, initVectorRX, 0, 16);//SAVE it to receive message
                                 nos.write(encryptedData);
@@ -695,6 +695,7 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
                                 outBundle.putByteArray("decryptedData", decryptedData);
                                 //String s = new String(decryptedData);//.split("\0")[0];
                                 publishProgress(outBundle);
+                                TimeUnit.MILLISECONDS.sleep(150);
                             }
                         }
                     }while(dialogStage != SYNC_FLOW);
@@ -733,9 +734,9 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
                 if(memoryPage == DOORID_PAGE){
                     System.arraycopy(dataToSave, 0, doorOneId, 0, doorOneId.length);//S
                     System.arraycopy(dataToSave, 4, doorTwoId, 0, doorTwoId.length);//S
-                    door1IdString = Base64.encodeToString(doorOneId, Base64.DEFAULT);
-                    cvLock.put(LockDataContract.COLUMN_DOOR1_ID, Base64.encodeToString(doorOneId, Base64.DEFAULT));
-                    cvLock.put(LockDataContract.COLUMN_DOOR2_ID, Base64.encodeToString(doorOneId, Base64.DEFAULT));
+                    door1IdString = Base64.encodeToString(doorOneId, Base64.NO_WRAP);
+                    cvLock.put(LockDataContract.COLUMN_DOOR1_ID, Base64.encodeToString(doorOneId, Base64.NO_WRAP));
+                    cvLock.put(LockDataContract.COLUMN_DOOR2_ID, Base64.encodeToString(doorTwoId, Base64.NO_WRAP));
                 }else if(memoryPage == CWMODE_PAGE){
                     cvLock.put(LockDataContract.COLUMN_CWMODE, dataToSave[0]);
                 }else if(memoryPage == CWSAP_SSID_PAGE){
@@ -766,8 +767,8 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
                         ContentValues cv = new ContentValues();
                         cv.put(LockDataContract.COLUMN_AES_KEY, dataToSave);
                         cv.put(LockDataContract.COLUMN_AES_KEY_USED_FLAG, 0);
-                        cv.put(LockDataContract.COLUMN_AES_DOOR1_ID, Base64.encodeToString(doorOneId, Base64.DEFAULT));
-                        cv.put(LockDataContract.COLUMN_AES_DOOR2_ID, Base64.encodeToString(doorTwoId, Base64.DEFAULT));
+                        cv.put(LockDataContract.COLUMN_AES_DOOR1_ID, Base64.encodeToString(doorOneId, Base64.NO_WRAP));
+                        cv.put(LockDataContract.COLUMN_AES_DOOR2_ID, Base64.encodeToString(doorTwoId, Base64.NO_WRAP));
                         cv.put(LockDataContract.COLUMN_AES_MEM_PAGE, memoryPage);
                         cvUser.add(cv);
                     }
@@ -871,11 +872,44 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
     }
 
 
-    private static byte[] getRtc(){
-        byte[] rtc = {0x18, 0x10, 0x20, 0x21, 0x28, 0x30};
-
-        return rtc;
+    private byte[] getRtc(){
+        Calendar c = Calendar.getInstance();
+        int day    = c.get(Calendar.DAY_OF_MONTH);
+        int month  = c.get(Calendar.MONTH);
+        int year   = c.get(Calendar.YEAR);
+        int hour   = c.get(Calendar.HOUR_OF_DAY);
+        int minute = c.get(Calendar.MINUTE);
+        return timeIntToHex(hour, minute, day, month, year);
     }
+
+    private byte[] timeIntToHex(int hour, int minute, int day, int month, int year){
+        byte[] output = new byte[5];
+        int tempX_, temp_X;
+
+        temp_X = year % 10;
+        tempX_ = (year / 10 % 10) << 4;
+        output[0] = (byte) (tempX_ | temp_X);
+
+        month++;
+        temp_X = month % 10;
+        tempX_ = (month / 10 % 10) << 4;
+        output[1] = (byte) (tempX_ | temp_X);
+
+        temp_X = day % 10;
+        tempX_ = (day / 10 % 10) << 4;
+        output[2] = (byte) (tempX_ | temp_X);
+
+        temp_X = hour % 10;
+        tempX_ = (hour/ 10 % 10) << 4;
+        output[3] = (byte) (tempX_ | temp_X);
+
+        temp_X = minute % 10;
+        tempX_ = (minute / 10 % 10) << 4;
+        output[4] = (byte) (tempX_ | temp_X);
+
+        return output;
+    }
+
 
     private static byte[] encrypt(byte[] data, byte[] initVector, byte[] key) {
         try {
