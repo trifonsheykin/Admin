@@ -39,20 +39,17 @@ public class DbHelper extends SQLiteOpenHelper {
 
         // Create a table to hold user data
 
-
         final String SQL_CREATE_USERDATA_TABLE = "CREATE TABLE " + LockDataContract.TABLE_NAME_USER_DATA //
                 + " ("
                 + LockDataContract._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + LockDataContract.COLUMN_USER_NAME + " TEXT, "
                 + LockDataContract.COLUMN_USER_LOCKS  + " TEXT, "//titles
-                + LockDataContract.COLUMN_USER_AES_KEY + " BLOB, "
-                + LockDataContract.COLUMN_USER_ID + " BLOB, "
-                + LockDataContract.COLUMN_USER_PASS_DATA + " BLOB, "
-                + LockDataContract.COLUMN_USER_START_DOOR1_TIME + " BLOB, "
-                + LockDataContract.COLUMN_USER_START_DOOR2_TIME + " BLOB, "
-                + LockDataContract.COLUMN_USER_STOP_DOOR1_TIME + " BLOB, "
-                + LockDataContract.COLUMN_USER_STOP_DOOR2_TIME + " BLOB, "
-                + LockDataContract.COLUMN_USER_MEM_PAGE + " TEXT, "
+                + LockDataContract.COLUMN_USER_ACCESS_CODE + " BLOB, "
+                + LockDataContract.COLUMN_AC_CREATION_DATE + " TEXT, "
+                + LockDataContract.COLUMN_USER_KEY_TITLE + " TEXT, "
+                + LockDataContract.COLUMN_LOCK_ROW_ID + " INTEGER, "
+                + LockDataContract.COLUMN_AES_KEY_ROW_ID + " INTEGER, "
+                + LockDataContract.COLUMN_USER_EXPIRED + " INTEGER, "
                 + LockDataContract.COLUMN_TIMESTAMP + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
                 + "); ";
 
@@ -73,6 +70,7 @@ public class DbHelper extends SQLiteOpenHelper {
                 + LockDataContract.COLUMN_AES_DOOR1_ID + " TEXT, "
                 + LockDataContract.COLUMN_AES_DOOR2_ID  + " TEXT, "
                 + LockDataContract.COLUMN_AES_MEM_PAGE + " INTEGER, "
+                + LockDataContract.COLUMN_LOCK_ROW_ID + " INTEGER, "
                 + LockDataContract.COLUMN_TIMESTAMP + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
                 + "); ";
 
@@ -93,6 +91,7 @@ public class DbHelper extends SQLiteOpenHelper {
                 + LockDataContract.COLUMN_CWSAP_SSID + " TEXT, "//
                 + LockDataContract.COLUMN_CWSAP_PWD + " TEXT, "//
                 + LockDataContract.COLUMN_CWMODE  + " INTEGER, "//
+                + LockDataContract.COLUMN_EXPIRED_AES_KEYS_PAGES + " BLOB, "
                 + LockDataContract.COLUMN_TIMESTAMP + " TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
                 + "); ";
 

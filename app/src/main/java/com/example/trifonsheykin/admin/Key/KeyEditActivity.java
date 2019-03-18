@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -26,6 +28,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -43,7 +46,7 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
     private RadioGroup radioGroup;
     private RadioButton rbDoor1Title;
     private RadioButton rbDoor2Title;
-
+    private boolean keyHasBeenRead;
     private long rowId;
     KeyNetworkTask keyNetworkTask;
     private SQLiteDatabase mDb;
@@ -52,7 +55,8 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
     byte[] initVectorTX = new byte[16];
     byte[] initVectorRX = new byte[16];
     byte[] txData = new byte[80];
-    byte[]decryptedData = new byte[80];
+    byte[] decryptedData = new byte[80];
+
     String[] projection = {
             LockDataContract._ID,
             LockDataContract.COLUMN_LOCK1_TITLE,
@@ -85,23 +89,45 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_key_edit);
-
-        bChooseLock = findViewById(R.id.b_choose_lock);
+        keyHasBeenRead = false;
+        bChooseLock  = findViewById(R.id.b_choose_lock);
         tvLockStatus = findViewById(R.id.tv_lock_status);
-        bReadKey = findViewById(R.id.b_read_key);
-        bPlayKey = findViewById(R.id.b_play_key);
-        bSaveKey = findViewById(R.id.b_save_key);
-        etKeyTitle = findViewById(R.id.et_key_title);
-        radioGroup = findViewById(R.id.rg_lock_titles);
+        bReadKey     = findViewById(R.id.b_read_key);
+        bPlayKey     = findViewById(R.id.b_play_key);
+        bSaveKey     = findViewById(R.id.b_save_key);
+        etKeyTitle   = findViewById(R.id.et_key_title);
+        radioGroup   = findViewById(R.id.rg_lock_titles);
         rbDoor1Title = findViewById(R.id.rb_lock1_title);
         rbDoor2Title = findViewById(R.id.rb_lock2_title);
+
+        disableAllElements();
+
+        etKeyTitle.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(s.length() != 0){
+                    bChooseLock.setEnabled(true);
+                }
+                saveButtonEnableRequest();
+
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
 
         bChooseLock.setOnClickListener(this);
         bReadKey.setOnClickListener(this);
         bPlayKey.setOnClickListener(this);
         bSaveKey.setOnClickListener(this);
-
-
 
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -115,17 +141,45 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
         });
         rbDoor1Title.setChecked(true);
         Intent intentThatStartedThisActivity = getIntent();
-
-        // Create a DB helper (this will create the DB if run for the first time)
         DbHelper dbHelperLock = DbHelper.getInstance(this);
-
-        // Keep a reference to the mDb until paused or killed. Get a writable database
-        // because you will be adding customers
         mDb = dbHelperLock.getWritableDatabase();
-
         if (intentThatStartedThisActivity.hasExtra(Intent.EXTRA_TEXT)) {
 
         }
+    }
+
+    private void saveButtonEnableRequest(){
+        if((etKeyTitle.getText().toString().length() != 0)&&
+               keyHasBeenRead){
+            bSaveKey.setEnabled(true);
+        }else{
+            bSaveKey.setEnabled(false);
+        }
+
+    }
+
+    private void disableAllElements(){
+        bChooseLock.setEnabled(false);
+        bPlayKey.setEnabled(false);
+        bReadKey.setEnabled(false);
+        bSaveKey.setEnabled(false);
+        rbDoor1Title.setEnabled(false);
+        rbDoor2Title.setEnabled(false);
+        tvLockStatus.setEnabled(false);
+        bChooseLock.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_https_disabled_24dp, 0,0,0);
+        bReadKey.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_file_download_disabled_24dp, 0,0,0);
+        bPlayKey.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_play_arrow_disabled_24dp, 0,0,0);
+    }
+
+    private void enableKeyElements(){
+        bPlayKey.setEnabled(true);
+        bReadKey.setEnabled(true);
+        rbDoor1Title.setEnabled(true);
+        rbDoor2Title.setEnabled(true);
+        bReadKey.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_file_download_colored_24dp, 0,0,0);
+        bPlayKey.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_play_arrow_colored_24dp, 0,0,0);
+
+
     }
 
 
@@ -136,6 +190,10 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
         switch (v.getId()){
             case R.id.b_choose_lock://ping + xored const key send
                 //HERE WE JUMP TO CHOOSE LOCK ACTIVITY
+
+                keyHasBeenRead = false;
+                bSaveKey.setEnabled(false);
+
                 Context context = KeyEditActivity.this;
                 Class destinationActivity = LockSelectActivity.class;
                 intent= new Intent(context, destinationActivity);//
@@ -272,7 +330,8 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
                 String lock2Title = cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_LOCK2_TITLE));
                 rbDoor1Title.setText(lock1Title);
                 rbDoor2Title.setText(lock2Title);
-
+                tvLockStatus.setEnabled(true);
+                bChooseLock.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_https_colored_24dp, 0,0,0);
                 /**
                  * we need in bundle:
                  * CWMODE to decide usage of ip address to send
@@ -419,6 +478,10 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
             prepareData(bundles[0]);
             int read = 0;
             int dialogStage = 0;
+            if(!isConecctedToDevice()){
+                publishProgress("Not connected.\nCheck your Wi-Fi network\nsettings or select another lock");
+                return null;
+            }
             try {
                 nsocket = new Socket(ipaddr, port);
                 if (nsocket.isConnected()) {
@@ -461,14 +524,34 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+                publishProgress(e.getMessage());
             }
             return null;
+        }
+
+        public boolean isConecctedToDevice() {
+            Runtime runtime = Runtime.getRuntime();
+            try {
+                Process ipProcess = runtime.exec("/system/bin/ping -c 1 " + ipaddr);
+                int     exitValue = ipProcess.waitFor();
+                return (exitValue == 0);
+            } catch (IOException e)          { e.printStackTrace(); }
+            catch (InterruptedException e) { e.printStackTrace(); }
+            return false;
         }
 
 
         @Override
         protected void onProgressUpdate(String... strings) {
             tvLockStatus.setText(strings[0]);
+            if(strings[0].contentEquals("OK")){
+                keyHasBeenRead = true;
+                tvLockStatus.append("\n" + Arrays.toString(wiegandRealPass));
+                saveButtonEnableRequest();
+            }if(strings[0].contentEquals("PING OK")){
+                enableKeyElements();
+
+            }
 
         }
 
@@ -480,7 +563,6 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
 
 
     }
-
 
 
 

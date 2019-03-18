@@ -4,99 +4,107 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Key.KeyEditActivity">
+    tools:context=".Key.KeyEditActivity"
+    tools:layout_editor_absoluteY="81dp">
 
     <Button
         android:id="@+id/b_choose_lock"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="14dp"
-        android:text="@string/title_choose_lock"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rg_lock_titles" />
+        android:layout_marginTop="8dp"
+        android:drawableStart="@drawable/ic_https_colored_24dp"
+        android:drawablePadding="8dp"
+        android:text="select lock"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tv_lock_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="28dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
         android:text="Status"
-        app:layout_constraintStart_toEndOf="@+id/b_choose_lock"
+        app:layout_constraintBottom_toTopOf="@+id/b_read_key"
+        app:layout_constraintEnd_toStartOf="@+id/b_play_key"
+        app:layout_constraintHorizontal_bias="0.523"
+        app:layout_constraintStart_toEndOf="@+id/b_read_key"
         app:layout_constraintTop_toBottomOf="@+id/rg_lock_titles" />
 
     <Button
         android:id="@+id/b_read_key"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
+        android:layout_marginStart="24dp"
         android:layout_marginTop="32dp"
-        android:text="@string/title_read_key"
+        android:layout_marginBottom="128dp"
+        android:drawableStart="@drawable/ic_file_download_colored_24dp"
+        android:drawablePadding="8dp"
+        android:text="read key"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/b_choose_lock" />
+        app:layout_constraintTop_toBottomOf="@+id/rg_lock_titles" />
 
     <Button
         android:id="@+id/b_play_key"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginLeft="32dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginEnd="24dp"
+        android:drawableStart="@drawable/ic_play_arrow_colored_24dp"
+        android:drawablePadding="8dp"
         android:text="@string/title_play_key"
-        app:layout_constraintStart_toEndOf="@+id/b_read_key"
-        app:layout_constraintTop_toBottomOf="@+id/b_choose_lock" />
-
-    <TextView
-        android:id="@+id/tv_key_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="24dp"
-        android:text="@string/title_key_title"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/b_read_key" />
+        app:layout_constraintBottom_toBottomOf="@+id/b_read_key"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/b_read_key" />
 
     <EditText
         android:id="@+id/et_key_title"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
         android:ems="10"
-        android:hint="@string/title_press_to_enter"
+        android:hint="Key title"
         android:inputType="textPersonName"
-        app:layout_constraintStart_toEndOf="@+id/tv_key_title"
-        app:layout_constraintTop_toBottomOf="@+id/b_play_key" />
+        app:layout_constraintEnd_toStartOf="@+id/b_choose_lock"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/b_save_key"
-        android:layout_width="wrap_content"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         android:text="@string/title_save_key"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_key_title" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
     <RadioGroup
         android:id="@+id/rg_lock_titles"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="64dp"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/b_read_key"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <RadioButton
             android:id="@+id/rb_lock1_title"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:text="@string/title_door1_select"
             tools:layout_editor_absoluteX="37dp"
             tools:layout_editor_absoluteY="16dp" />
@@ -104,13 +112,12 @@
         <RadioButton
             android:id="@+id/rb_lock2_title"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:text="@string/title_door2_select"
             tools:layout_editor_absoluteX="36dp"
             tools:layout_editor_absoluteY="48dp" />
 
     </RadioGroup>
-
 
 
 </android.support.constraint.ConstraintLayout>

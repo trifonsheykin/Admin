@@ -4,157 +4,146 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".User.UserEditActivity">
+    tools:context=".User.UserEditActivity"
+    tools:layout_editor_absoluteY="81dp">
 
 
     <EditText
         android:id="@+id/et_user_name"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
         android:ems="10"
         android:hint="@string/title_user_name"
         android:inputType="textPersonName"
+        app:layout_constraintEnd_toStartOf="@+id/b_select_lock"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/b_select_lock"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:text="@string/title_select_lock"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_user_name" />
+        android:drawableStart="@drawable/ic_https_colored_24dp"
+        android:drawablePadding="8dp"
+        android:text="select lock"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/b_select_key"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/title_select_key"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginEnd="10dp"
+        android:drawableStart="@drawable/ic_vpn_key_colored_24dp"
+        android:drawablePadding="8dp"
+        android:text="select key"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/b_select_lock" />
-
-    <TextView
-        android:id="@+id/tv_selected_lock"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
-        android:text="@string/title_selected_lock"
-        app:layout_constraintStart_toEndOf="@+id/b_select_lock"
-        app:layout_constraintTop_toBottomOf="@+id/et_user_name" />
 
     <TextView
         android:id="@+id/tv_selected_key"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="36dp"
-        android:text="@string/title_selected_key"
-        app:layout_constraintStart_toEndOf="@+id/b_select_key"
-        app:layout_constraintTop_toBottomOf="@+id/tv_selected_lock" />
+        android:layout_marginTop="16dp"
+        android:text="Key not selected"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/et_user_name" />
 
     <Button
-        android:id="@+id/b_select_start_datetime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/title_select_start_datetime"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/b_select_key" />
-
-    <Button
-        android:id="@+id/b_select_stop_datetime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/title_select_stop_datetime"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/b_select_start_datetime" />
-
-    <TextView
-        android:id="@+id/tv_selected_start_datetime"
+        android:id="@+id/b_start_door1"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="36dp"
-        android:text="@string/title_selected_start_datetime"
-        app:layout_constraintStart_toEndOf="@+id/b_select_start_datetime"
-        app:layout_constraintTop_toBottomOf="@+id/tv_selected_key" />
+        android:drawableStart="@drawable/ic_access_time_colored_24dp"
+        android:drawablePadding="24dp"
+        android:text="from"
+        android:textAlignment="textEnd"
+        app:layout_constraintBottom_toTopOf="@+id/cb_door2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cb_door1" />
 
-    <TextView
-        android:id="@+id/tv_selected_stop_datetime"
+    <Button
+        android:id="@+id/b_stop_door1"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="36dp"
-        android:text="@string/title_selected_stop_datetime"
-        app:layout_constraintStart_toEndOf="@+id/b_select_stop_datetime"
-        app:layout_constraintTop_toBottomOf="@+id/tv_selected_start_datetime" />
+        android:drawableStart="@drawable/ic_trending_flat_black_24dp"
+        android:drawablePadding="24dp"
+        android:text="to"
+        android:textAlignment="textStart"
+        app:layout_constraintBottom_toBottomOf="@+id/b_start_door1"
+        app:layout_constraintStart_toEndOf="@+id/b_start_door1"
+        app:layout_constraintTop_toTopOf="@+id/b_start_door1" />
 
     <Button
         android:id="@+id/b_save"
+        style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:text="@string/title_save"
+        android:text="save user"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/b_share_qr"
+        android:id="@+id/b_start_door2"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="63dp"
-        android:text="@string/title_share_as_qr"
+        android:layout_marginStart="24dp"
+        android:layout_marginBottom="128dp"
+        android:drawableStart="@drawable/ic_access_time_colored_24dp"
+        android:drawablePadding="24dp"
+        android:text="from"
+        android:textAlignment="textEnd"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/b_select_stop_datetime" />
+        app:layout_constraintTop_toBottomOf="@+id/cb_door2" />
 
     <Button
-        android:id="@+id/b_share_text"
+        android:id="@+id/b_stop_door2"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_trending_flat_black_24dp"
+        android:drawablePadding="24dp"
+        android:text="to"
+        android:textAlignment="textStart"
+        app:layout_constraintBottom_toBottomOf="@+id/b_start_door2"
+        app:layout_constraintStart_toEndOf="@+id/b_start_door2"
+        app:layout_constraintTop_toTopOf="@+id/b_start_door2" />
+
+    <CheckBox
+        android:id="@+id/cb_door1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="69dp"
-        android:layout_marginBottom="33dp"
-        android:text="@string/title_share_as_text"
-        app:layout_constraintBottom_toTopOf="@+id/b_save"
+        android:layout_marginTop="128dp"
+        android:text="Door 1 access time select:"
+        app:layout_constraintBottom_toTopOf="@+id/b_start_door1"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/b_share_qr" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/iv_qr_code"
-        android:layout_width="154dp"
-        android:layout_height="134dp"
-        android:layout_marginStart="85dp"
-        android:layout_marginEnd="44dp"
-        android:layout_marginBottom="8dp"
-        android:contentDescription="@string/main_qr_code"
-        app:layout_constraintBottom_toTopOf="@+id/tv_text_code"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/b_share_qr"
-        app:srcCompat="@drawable/pic_qr_scan" />
+    <CheckBox
+        android:id="@+id/cb_door2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="Door 2 access time select:"
+        app:layout_constraintBottom_toTopOf="@+id/b_start_door2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/b_start_door1" />
 
-    <TextView
-        android:id="@+id/tv_text_code"
-        android:layout_width="226dp"
-        android:layout_height="58dp"
-        android:layout_marginStart="35dp"
-        android:layout_marginBottom="24dp"
-        android:text="@string/title_share_as_text"
-        app:layout_constraintBottom_toTopOf="@+id/b_save"
-        app:layout_constraintStart_toEndOf="@+id/b_share_text" />
 
 </android.support.constraint.ConstraintLayout>

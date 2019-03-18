@@ -18,19 +18,19 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        cbQrScanner = findViewById(R.id.cbScanQrFirst);
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        spEditor = sharedPreferences.edit();
-
-        cbQrScanner.setChecked(sharedPreferences.getBoolean("qrScanner", false));
-        cbQrScanner.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-                spEditor.putBoolean("qrScanner", isChecked);
-                spEditor.commit();
-            }
-        });
+//        cbQrScanner = findViewById(R.id.cbScanQrFirst);
+//        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+//        spEditor = sharedPreferences.edit();
+//
+//        cbQrScanner.setChecked(sharedPreferences.getBoolean("qrScanner", false));
+//        cbQrScanner.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//
+//                spEditor.putBoolean("qrScanner", isChecked);
+//                spEditor.commit();
+//            }
+//        });
     }
 
 

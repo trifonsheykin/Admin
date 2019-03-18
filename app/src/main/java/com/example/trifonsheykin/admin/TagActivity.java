@@ -6,45 +6,59 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
-import android.os.Parcelable;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.v4.content.FileProvider;
+import android.support.v4.print.PrintHelper;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.trifonsheykin.admin.Key.KeyEditActivity;
 import com.example.trifonsheykin.admin.Lock.LockSelectActivity;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 
 public class TagActivity extends AppCompatActivity {
 
     private Button bSelectLock;
-    private Button bGenerateQr;
-    private Button bSaveQr;
-    private Button bGenerateNfc;
+    private Button bPrintQr;
+    private Button bShareQr;
     private RadioGroup rgLockSelect;
     private RadioButton rbDoorOne;
     private RadioButton rbDoorTwo;
+    private Switch sNfcWrite;
     private ImageView qrImage;
-    private TextView tvNfcStatus;
+    private ImageView nfcImage;
+    private Bitmap bitmap;
     private SQLiteDatabase mDb;
     private Cursor cursor;
     private long rowId;
@@ -77,14 +91,17 @@ public class TagActivity extends AppCompatActivity {
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         bSelectLock = findViewById(R.id.b_lock_select);
-        bGenerateQr = findViewById(R.id.b_generate_qr);
-        bSaveQr = findViewById(R.id.b_save_qr);
-        bGenerateNfc = findViewById(R.id.b_generate_nfc);
+        bPrintQr = findViewById(R.id.b_print_qr);
+        bShareQr = findViewById(R.id.b_share_qr);
         rgLockSelect = findViewById(R.id.rg_lock_select);
         rbDoorOne = findViewById(R.id.rb_door1_select);
         rbDoorTwo = findViewById(R.id.rb_door2_select);
+        sNfcWrite = findViewById(R.id.s_nfc_write);
         qrImage = findViewById(R.id.iv_qr);
-        tvNfcStatus = findViewById(R.id.tv_nfc_status);
+        nfcImage = findViewById(R.id.iv_nfc);
+
+
+        bSelectLock.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_https_disabled_24dp, 0,0,0);
 
         DbHelper dbHelperLock = DbHelper.getInstance(this);
         mDb = dbHelperLock.getWritableDatabase();
@@ -99,20 +116,70 @@ public class TagActivity extends AppCompatActivity {
             }
         });
 
-        bGenerateNfc.setOnClickListener(new View.OnClickListener() {
+        rgLockSelect.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if(rbDoorOne.isChecked()){
+                    qrImageUpdate(cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_DOOR1_ID)));
+                }else if(rbDoorTwo.isChecked()){
+                    qrImageUpdate(cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_DOOR2_ID)));
+                }
+            }
+        });
+
+        sNfcWrite.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    enableForegroundDispatchSystem();
+                    nfcImage.setImageResource(R.drawable.ic_nfc_enabled_24dp);
+                }else{
+                    disableForegroundDispatchSystem();
+                    nfcImage.setImageResource(R.drawable.ic_nfc_disabled_24dp);
+                }
+            }
+        });
+
+        bShareQr.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (rbDoorOne.isChecked()) {
-                    doorId = cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_DOOR1_ID));
+                File imagePath = new File(getApplicationContext().getCacheDir(), "images");
+                File newFile = new File(imagePath, "image.png");
+                Uri contentUri = FileProvider.getUriForFile(getApplicationContext(), "com.example.trifonsheykin.admin.fileprovider", newFile);
 
-                }else{
-                    doorId = cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_DOOR2_ID));
+                if (contentUri != null) {
+                    Intent shareIntent = new Intent();
+                    shareIntent.setAction(Intent.ACTION_SEND);
+                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // temp permission for receiving app to read this file
+                    shareIntent.setDataAndType(contentUri, getContentResolver().getType(contentUri));
+                    shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+                    startActivity(Intent.createChooser(shareIntent, "Choose an app"));
                 }
 
-                tvNfcStatus.setText(doorId);
+            }
+        });
+
+        bPrintQr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doPhotoPrint();
             }
         });
     }
+    private void doPhotoPrint() {
+        PrintHelper photoPrinter = new PrintHelper(TagActivity.this);
+        photoPrinter.setScaleMode(PrintHelper.SCALE_MODE_FIT);
+        photoPrinter.printBitmap("qr-code", resizeBitmap(bitmap, 1500, 2300));
+    }
+    public Bitmap resizeBitmap(Bitmap Src, int padding_x, int padding_y) {
+        Bitmap outputimage = Bitmap.createBitmap(Src.getWidth() + padding_x,Src.getHeight() + padding_y, Bitmap.Config.ARGB_8888);
+        Canvas can = new Canvas(outputimage);
+        can.drawARGB(0xFF,0xFF,0xFF,0xFF); //This represents White color
+        can.drawBitmap(Src, 10, 0, null);
+        return outputimage;
+    }
+
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -135,12 +202,41 @@ public class TagActivity extends AppCompatActivity {
                 cursor.moveToPosition(0);
                 String lock1Title = cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_LOCK1_TITLE));
                 String lock2Title = cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_LOCK2_TITLE));
-                rbDoorTwo.setChecked(true);
-                rbDoorOne.setText("Generate door ID for " + lock1Title);
-                rbDoorTwo.setText("Generate door ID for " + lock2Title);
-
+                String lock1id = cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_DOOR1_ID));
+                String lock2id = cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_DOOR2_ID));
+                rbDoorOne.setEnabled(true);
+                rbDoorTwo.setEnabled(true);
+                rbDoorOne.setChecked(true);
+                rbDoorOne.setText("Door 1: " + lock1Title + "\nid: " + lock1id);
+                rbDoorTwo.setText("Door 2: " + lock2Title + "\nid: " + lock2id);
+                sNfcWrite.setEnabled(true);
+                bPrintQr.setEnabled(true);
+                bShareQr.setEnabled(true);
+                qrImageUpdate(lock1id);
+                bSelectLock.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_https_colored_24dp, 0,0,0);
             }
         }
+    }
+
+    private void qrImageUpdate(String doorId){
+        MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
+        try{
+            BitMatrix bitMatrix = multiFormatWriter.encode(doorId, BarcodeFormat.QR_CODE, 400, 400);
+            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+            bitmap = barcodeEncoder.createBitmap(bitMatrix);
+            qrImage.setImageBitmap(bitmap);
+            File cachePath = new File(getApplicationContext().getCacheDir(), "images");
+            cachePath.mkdirs(); // don't forget to make the directory
+            FileOutputStream stream = new FileOutputStream(cachePath + "/image.png"); // overwrites this image every time
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            stream.close();
+
+        }catch (WriterException e){
+            e.printStackTrace();
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -153,13 +249,14 @@ public class TagActivity extends AppCompatActivity {
 
         }
     }
+
     private void writeNdefMessage(Tag tag, NdefMessage ndefMessage){
+        final Ndef ndef = Ndef.get(tag);
         try{
             if(tag == null){
                 Toast.makeText(this, "Tag object cannot be null", Toast.LENGTH_SHORT).show();
                 return;
             }
-            Ndef ndef = Ndef.get(tag);
             if(ndef == null){
                 formatTag(tag, ndefMessage);
             }else{
@@ -170,14 +267,19 @@ public class TagActivity extends AppCompatActivity {
                     return;
                 }
                 ndef.writeNdefMessage(ndefMessage);
+                if(ndef.canMakeReadOnly()){
+                    ndef.makeReadOnly();
+                    Toast.makeText(this, "Tag written", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(this, "Rewritable tag written", Toast.LENGTH_SHORT).show();
+                }
                 ndef.close();
-                Toast.makeText(this, "Tag written", Toast.LENGTH_SHORT).show();
+
 
             }
 
         }catch (Exception e){
             Log.e("writeNdefMessage", e.getMessage());
-
         }
 
     }
@@ -228,17 +330,10 @@ public class TagActivity extends AppCompatActivity {
     private NdefMessage createNdefMessage(String content) {
         NdefRecord ndefRecord = createTextRecord(content);
         NdefMessage ndefMessage = new NdefMessage(new NdefRecord[]{ndefRecord, NdefRecord.createApplicationRecord("com.smartlock.client")});
-
         return ndefMessage;
 
     }
 
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        enableForegroundDispatchSystem();
-    }
 
     @Override
     protected void onPause() {

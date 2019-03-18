@@ -8,15 +8,55 @@
     tools:context=".MainActivity"
     tools:showIn="@layout/app_bar_main">
 
-
-    <ImageView
-        android:id="@+id/iReaderIcon"
-        android:layout_width="171dp"
-        android:layout_height="313dp"
-        android:onClick="qrScan"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <CalendarView
+        android:id="@+id/calendarView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/b_default_lock"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/pic_qr_scan" />
+        app:layout_constraintVertical_chainStyle="spread" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_main"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/ic_person_add_white_24dp"
+        tools:ignore="VectorDrawableCompat" />
+
+    <Button
+        android:id="@+id/b_default_lock"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_https_colored_24dp"
+        android:drawablePadding="8dp"
+        android:text="default lock"
+        app:layout_constraintBottom_toTopOf="@+id/b_default_key"
+        app:layout_constraintEnd_toEndOf="@+id/calendarView"
+        app:layout_constraintStart_toStartOf="@+id/calendarView"
+        app:layout_constraintTop_toBottomOf="@+id/calendarView" />
+
+    <Button
+        android:id="@+id/b_default_key"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:drawableStart="@drawable/ic_vpn_key_colored_24dp"
+        android:drawablePadding="8dp"
+        android:text="default key"
+        app:layout_constraintBottom_toTopOf="@+id/fab_main"
+        app:layout_constraintStart_toStartOf="@+id/b_default_lock"
+        app:layout_constraintTop_toBottomOf="@+id/b_default_lock" />
+
+
 </android.support.constraint.ConstraintLayout>

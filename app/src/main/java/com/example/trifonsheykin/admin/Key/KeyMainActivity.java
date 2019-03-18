@@ -36,9 +36,9 @@ public class KeyMainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     long id = (long) view.getTag();
-                    Intent intent= new Intent(KeyMainActivity.this, KeyEditActivity.class);
-                    intent.putExtra("rowId", id);
-                    startActivityForResult(intent, EDIT_KEY);////request code edit lock
+                    Intent intent= new Intent(KeyMainActivity.this, KeyInfoActivity.class);
+                    intent.putExtra("id", id);
+                    startActivity(intent);////request code edit lock
 
                 } };
 
@@ -47,9 +47,11 @@ public class KeyMainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_key_main);
 
-
         recyclerViewKey = findViewById(R.id.keyRecycler);
-        recyclerViewKey.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setReverseLayout(true);
+        linearLayoutManager.setStackFromEnd(true);
+        recyclerViewKey.setLayoutManager(linearLayoutManager);
 
         DbHelper dbHelperKey = DbHelper.getInstance(this);
         mDb = dbHelperKey.getWritableDatabase();

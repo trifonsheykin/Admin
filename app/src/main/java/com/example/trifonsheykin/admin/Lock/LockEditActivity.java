@@ -6,13 +6,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,7 +20,6 @@ import android.util.Base64;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
@@ -81,37 +78,25 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
     private static final int SOFTAP = 2;
 
     private static final String ESP_AP_STATIC_IP = "192.168.4.1";
-    private static final String BUTTON_TEXT_START_SYNC = "Start synchronization";
-    private static final String BUTTON_TEXT_CONNECT = "Get device IP address";
-
-
 
     private IEsptouchTask mEsptouchTask;
     private static final Object mLock = new Object();
     private byte[] syncKey =  new byte[32];
 
 
-    private TextView tvLock1Title;
-    private TextView tvLock2Title;
-    private TextView tvStatus;
-    private TextView tvSSID;
-    private TextView tvPassword;
     private ProgressBar pbStatus;
-
     private EditText etLock1Title;
     private EditText etLock2Title;
-    private CheckBox cbWiFiSettings;
     private TextView tvWiFiSettings;
+    private TextView tvStatus;
     private RadioGroup radioGroup;
     private RadioButton rbAccessPoint;
     private RadioButton rbStation;
-    private boolean newLockFlag;
-    private boolean syncIsOn;
-    private static final String TAG = "LockEditActivity";
     private EditText etApSsid;
     private String mApBssidTV;
     private EditText etApPassword;
     private Button bSynchronize;
+    private Button bConnect;
     private long lockRowId;
     private String deviceIpAddress;
     private String door1IdString;
@@ -120,9 +105,10 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
     private SQLiteDatabase mDb;
     ArrayList<byte[]> inputData = new ArrayList<byte[]>();
 
-    private SharedPreferences sharedPreferences;
-    private SharedPreferences.Editor spEditor;
+ //   private SharedPreferences sharedPreferences;
+ //   private SharedPreferences.Editor spEditor;
     private boolean spShowSavedData;
+    private boolean ipAddressReceived;
 
 
 
@@ -145,10 +131,13 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
             if (action == null) {
                 return;
             }
-
             switch (action) {
                 case WifiManager.NETWORK_STATE_CHANGED_ACTION:
-                    WifiInfo wifiInfo = intent.getParcelableExtra(WifiManager.EXTRA_WIFI_INFO);
+//                    WifiInfo wifiInfo = intent.getParcelableExtra(WifiManager.EXTRA_WIFI_INFO);
+//                    onWifiChanged(wifiInfo);
+
+                    WifiManager mainWifi = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
+                    WifiInfo wifiInfo = mainWifi.getConnectionInfo();
                     onWifiChanged(wifiInfo);
                     break;
             }
@@ -156,54 +145,42 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
     };
 
 
+
+
     @Override
     protected void onStart() {
         super.onStart();
-        spShowSavedData = sharedPreferences.getBoolean("spShowSavedData", false);
-        deviceIpAddress = "";
-        if(spShowSavedData){
-            etLock1Title.setText(sharedPreferences.getString("lock1Title", ""));
-            etLock2Title.setText(sharedPreferences.getString("lock2Title", ""));
-            if(sharedPreferences.getBoolean("accessPoint", true)){
-                rbAccessPoint.setChecked(true);
-                rbStation.setChecked(false);
-                deviceIpAddress = ESP_AP_STATIC_IP;
+    //    spShowSavedData = sharedPreferences.getBoolean("spShowSavedData", false);
+    //    deviceIpAddress = "";
+    //    if(spShowSavedData){
+      //      etLock1Title.setText(sharedPreferences.getString("lock1Title", ""));
+      //      etLock2Title.setText(sharedPreferences.getString("lock2Title", ""));
+//            if(sharedPreferences.getBoolean("accessPoint", true)){
+//                rbAccessPoint.setChecked(true);
+//                rbStation.setChecked(false);
+//                deviceIpAddress = ESP_AP_STATIC_IP;
+//
+//            }else{
+//                rbAccessPoint.setChecked(false);
+//                rbStation.setChecked(true);
+//
+//            }
+//            etApPassword.setText(sharedPreferences.getString("password", ""));
+      //  }
 
-            }else{
-                rbAccessPoint.setChecked(false);
-                rbStation.setChecked(true);
-
-            }
-            etApPassword.setText(sharedPreferences.getString("password", ""));
-        }
-        if(rbStation.isChecked() && deviceIpAddress.isEmpty()){
-            bSynchronize.setText(BUTTON_TEXT_CONNECT);
-        }else{
-            bSynchronize.setText(BUTTON_TEXT_START_SYNC);
-        }
 
     }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lock_edit);
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        spEditor = sharedPreferences.edit();
-        Intent intent = getIntent();
-        if (intent.hasExtra("rowId")) {
-            newLockFlag = false;
-            lockRowId = intent.getLongExtra("rowId", -1);
-        }else{
-            newLockFlag = true;
-            spEditor.putBoolean("spShowSavedData", false);
-            spEditor.commit();
-        }
-        tvLock1Title = findViewById(R.id.tvLock1Title);
-        tvLock2Title = findViewById(R.id.tvLock2Title);
+
+        //sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        //spEditor = sharedPreferences.edit();
+        ipAddressReceived = false;
         tvStatus = findViewById(R.id.tv_status);
-        tvSSID = findViewById(R.id.tv_ssid);
-        tvPassword = findViewById(R.id.tv_password);
+        tvWiFiSettings = findViewById(R.id.tv_wifi_settings);
+
         pbStatus = findViewById(R.id.progressBar);
         etApSsid = findViewById(R.id.ap_ssid_edit);
         etApPassword = findViewById(R.id.ap_password_edit);
@@ -213,55 +190,21 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
+                buttonConnectEnableRequest();
+                buttonSyncEnableRequest();
                 if(rbAccessPoint.isChecked()){
-                    //TODO if we edit existing lock then rb clicking should change db data about cwmode
-                    //TODO when we get in activity in edit mode we should send ping on entrance and every rb click to check accessibility of device
-                    //TODO user data expiration should be checked every day in background
-                    //TODO make some notifications if there is data to update
-                    //TODO in edit mode we have only ability to change wifi CWMODE ssid and pwd
 
-
-
-
-
-
-                    spEditor.putString("deviceIpAddress", deviceIpAddress);
-                    spEditor.commit();
+                    //spEditor.putString("deviceIpAddress", deviceIpAddress);
+                    //spEditor.commit();
                     deviceIpAddress = ESP_AP_STATIC_IP;
-                    bSynchronize.setText(BUTTON_TEXT_START_SYNC);
                 }else if(rbStation.isChecked()){
-
-
-
-
-
-
-
-                    deviceIpAddress = sharedPreferences.getString("deviceIpAddress", "");
-                    if(deviceIpAddress.isEmpty()){
-                        bSynchronize.setText(BUTTON_TEXT_CONNECT);
-                    }else{
-                        bSynchronize.setText(BUTTON_TEXT_START_SYNC);
-                    }
+                    //deviceIpAddress = sharedPreferences.getString("deviceIpAddress", "");
                 }
-
-
-                if(newLockFlag == false){// we in edit mode
-
-//                    mDb.insert(LockDataContract.TABLE_NAME_LOCK_DATA, null, cvLock);
-//                    for(ContentValues cv: cvUser){
-//                        mDb.insert(LockDataContract.TABLE_NAME_AES_DATA, null, cv);
-//                    }
-
-                }
-
-
             }
         });
-        cbWiFiSettings = findViewById(R.id.cb_wifi_settings);
-        tvWiFiSettings = findViewById(R.id.tv_wifi_settings);
         etLock1Title = findViewById(R.id.et_lock1_title);
         etLock2Title = findViewById(R.id.et_lock2_title);
+
         textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -270,17 +213,21 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(pbStatus.isEnabled()){
-                    bSynchronize.setEnabled(false);
-                }else if((etLock1Title.getText().toString().isEmpty()
-                        || etLock1Title.getText().toString().isEmpty()
-                        || etApPassword.getText().toString().isEmpty()
-                        || etApSsid.getText().toString().isEmpty())
-                        && etLock1Title.isEnabled()){
-                    bSynchronize.setEnabled(false);
+                buttonSyncEnableRequest();
+                if(etLock1Title.getText().toString().length() !=0 && etLock2Title.isEnabled() == false){
+                    etLock2Title.setEnabled(true);
+                }else if(etLock2Title.getText().toString().length() != 0 && tvWiFiSettings.isEnabled() == false){
+                    tvWiFiSettings.setEnabled(true);
+                    etApSsid.setEnabled(true);
+                    etApPassword.setEnabled(true);
+                    rbAccessPoint.setEnabled(true);
+                    rbStation.setEnabled(true);
+                    rbAccessPoint.setChecked(true);
                 }else{
-                    bSynchronize.setEnabled(true);
+                    buttonConnectEnableRequest();
                 }
+
+
 
             }
 
@@ -297,13 +244,12 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
 
         bSynchronize = findViewById(R.id.confirm_btn);
         bSynchronize.setOnClickListener(this);
+        bConnect = findViewById(R.id.b_connect);
+        bConnect.setOnClickListener(this);
 
-        screenComponentsSwitch(newLockFlag);
-        screenComponentsEnable(true);
+        screenComponentsDisableOnStart();
 
-        // Create a DB helper (this will create the DB if run for the first time)
         DbHelper dbHelperLock = DbHelper.getInstance(this);
-        // Keep a reference to the mDb until paused or killed. Get a writable db
         mDb = dbHelperLock.getWritableDatabase();
 
 
@@ -312,61 +258,57 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
     }
 
 
+    private void buttonSyncEnableRequest(){
+        if(etLock1Title.getText().toString().length() == 0
+                || etLock2Title.getText().toString().length() == 0
+                || etApSsid.getText().toString().length() == 0
+                || etApPassword.getText().toString().length() == 0
+                || (rbStation.isChecked() && ipAddressReceived == false)){
+            bSynchronize.setEnabled(false);
+        }else{
+            bSynchronize.setEnabled(true);
+        }
+    }
+    private void buttonConnectEnableRequest(){
+        if(etApSsid.getText().toString().length() == 0 || etApPassword.getText().toString().length() == 0 || rbAccessPoint.isChecked()){
+            bConnect.setEnabled(false);
+            bConnect.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_wifi_disabled_24dp, 0,0,0);
+            tvStatus.setText("");
+        }else{
+            bConnect.setEnabled(true);
+            bConnect.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_wifi_colored_24dp, 0,0,0);
+            tvStatus.setText("Make sure the lock is in configuration mode");
+        }
+
+    }
+
 
 
     @Override
     protected void onStop() {
         super.onStop();
-        spEditor.putString("lock1Title", etLock1Title.getText().toString());
-        spEditor.putString("lock2Title", etLock2Title.getText().toString());
-        if(rbAccessPoint.isChecked()) spEditor.putBoolean("accessPoint",true);
-        else spEditor.putBoolean("accessPoint",false);
-        spEditor.putString("password", etApPassword.getText().toString());
-        spEditor.commit();
+        //spEditor.putString("lock1Title", etLock1Title.getText().toString());
+        //spEditor.putString("lock2Title", etLock2Title.getText().toString());
+        //if(rbAccessPoint.isChecked()) spEditor.putBoolean("accessPoint",true);
+        //else spEditor.putBoolean("accessPoint",false);
+        //spEditor.putString("password", etApPassword.getText().toString());
+        //spEditor.commit();
     }
 
-    private void screenComponentsSwitch(boolean newLockFlag){
-        if(newLockFlag){
-            rbAccessPoint.setChecked(true);
-            tvWiFiSettings.setVisibility(View.VISIBLE);
-            cbWiFiSettings.setVisibility(View.INVISIBLE);
-
-        }else{
-            tvWiFiSettings.setVisibility(View.INVISIBLE);
-            cbWiFiSettings.setVisibility(View.VISIBLE);
-
-        }
-
+    private void screenComponentsDisableOnStart(){
+        etLock1Title.setEnabled(true);
+        etLock2Title.setEnabled(false);
+        tvWiFiSettings.setEnabled(false);
+        rbAccessPoint.setEnabled(false);
+        rbStation.setEnabled(false);
+        etApSsid.setEnabled(false);
+        etApPassword.setEnabled(false);
+        pbStatus.setVisibility(View.INVISIBLE);
+        tvStatus.setText("");
+        bConnect.setEnabled(false);
+        bConnect.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_wifi_disabled_24dp, 0,0,0);
+        bSynchronize.setEnabled(false);
     }
-
-    private void screenComponentsEnable(boolean enable){
-
-        tvLock1Title.setEnabled(enable);
-        tvLock2Title.setEnabled(enable);
-        etLock1Title.setEnabled(enable);
-        etLock2Title.setEnabled(enable);
-        if(newLockFlag){
-            tvWiFiSettings.setEnabled(enable);
-        }else{
-            cbWiFiSettings.setEnabled(enable);
-        }
-        rbAccessPoint.setEnabled(enable);
-        rbStation.setEnabled(enable);
-        tvSSID.setEnabled(enable);
-        tvPassword.setEnabled(enable);
-        etApSsid.setEnabled(enable);
-        etApPassword.setEnabled(enable);
-        pbStatus.setEnabled(!enable);
-        if(enable){
-            pbStatus.setVisibility(View.INVISIBLE);
-            tvStatus.setVisibility(View.INVISIBLE);
-        }else{
-            pbStatus.setVisibility(View.VISIBLE);
-            tvStatus.setVisibility(View.VISIBLE);
-        }
-        bSynchronize.setEnabled(enable);
-    }
-
 
 
     @Override
@@ -375,11 +317,10 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
 
         unregisterReceiver(mReceiver);
     }
-
     private void onWifiChanged(WifiInfo info) {
         etApPassword.setText("");
-        spEditor.putString("password", etApPassword.getText().toString());
-        spEditor.commit();
+        //spEditor.putString("password", etApPassword.getText().toString());
+        //spEditor.commit();
         if (info == null) {
             etApSsid.setText("");
             etApSsid.setTag(null);
@@ -400,6 +341,7 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
             if (ssid.startsWith("\"") && ssid.endsWith("\"")) {
                 ssid = ssid.substring(1, ssid.length() - 1);
             }
+
             etApSsid.setText(ssid);
             etApSsid.setTag(ByteUtil.getBytesByString(ssid));
             byte[] ssidOriginalData = EspUtils.getOriginalSsidBytes(info);
@@ -419,40 +361,36 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
             }
         }
     }
-
     @Override
     public void onClick(View v) {
         if (v == bSynchronize) {
+            Intent intent= new Intent(LockEditActivity.this, QrReadActivity.class);
+            startActivityForResult(intent, SOFTAP);//
+//            syncKey = ByteUtil.getBytesByString("12345098764444422222777771111100");
+//            NetworkTask networktask = new NetworkTask(); //New instance of NetworkTask
+//            Bundle myBundle = espStartSynchronization();
+//            networktask.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR,myBundle);
+
+        }else if(v == bConnect){
             if ((Boolean) bSynchronize.getTag()) {
                 Toast.makeText(this, R.string.wifi_5g_message, Toast.LENGTH_SHORT).show();
                 return;
             }else{
-                spEditor.putBoolean("spShowSavedData", true);
-                spEditor.commit();
-
-                if(bSynchronize.getText().toString() == BUTTON_TEXT_CONNECT){
-
-                    byte[] ssid = etApSsid.getTag() == null ? ByteUtil.getBytesByString(etApSsid.getText().toString())
+               // spEditor.putBoolean("spShowSavedData", true);
+               // spEditor.commit();
+                byte[] ssid = etApSsid.getTag() == null ? ByteUtil.getBytesByString(etApSsid.getText().toString())
                             : (byte[]) etApSsid.getTag();
-                    byte[] password = ByteUtil.getBytesByString(etApPassword.getText().toString());
-                    byte [] bssid = EspNetUtil.parseBssid2bytes(mApBssidTV);
-                    byte[] deviceCount = "1".getBytes();
-                    if(mTask != null) {
-                        mTask.cancelEsptouch();
-                    }
-                    mTask = new EsptouchAsyncTask4(this);
-                    mTask.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR,ssid, bssid, password, deviceCount);
-
-                }else if(bSynchronize.getText().toString() == BUTTON_TEXT_START_SYNC){
-
-                    Intent intent= new Intent(LockEditActivity.this, QrReadActivity.class);
-
-                    startActivityForResult(intent, SOFTAP);//
+                byte[] password = ByteUtil.getBytesByString(etApPassword.getText().toString());
+                byte [] bssid = EspNetUtil.parseBssid2bytes(mApBssidTV);
+                byte[] deviceCount = "1".getBytes();
+                if(mTask != null) {
+                    mTask.cancelEsptouch();
                 }
+                mTask = new EsptouchAsyncTask4(this);
+                mTask.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR,ssid, bssid, password, deviceCount);
             }
         }
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -464,21 +402,40 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
             Bundle myBundle = espStartSynchronization();
             networktask.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR,myBundle);
         }else{
-            screenComponentsEnable(true);
             tvStatus.setVisibility(View.VISIBLE);
             tvStatus.setText("No QR data");
         }
     }
-
     private Bundle espStartSynchronization(){
         Bundle bundle = new Bundle();
         createArray(inputData);
         bundle.putString("port", "48910");
-        bundle.putBoolean("newLockFlag", newLockFlag);
         bundle.putByteArray("syncKey", syncKey);
 
         //lockRowId = mDb.insert(LockDataContract.TABLE_NAME_LOCK_DATA, null, cvLock);
         return bundle;
+    }
+
+    private void progressBarEnable(boolean state){
+        pbStatus.setEnabled(state);
+        etLock1Title.setEnabled(!state);
+        etLock2Title.setEnabled(!state);
+        tvWiFiSettings.setEnabled(!state);
+        rbAccessPoint.setEnabled(!state);
+        rbStation.setEnabled(!state);
+        etApSsid.setEnabled(!state);
+        etApPassword.setEnabled(!state);
+        bConnect.setEnabled(!state);
+        bSynchronize.setEnabled(!state);
+        if(state){
+            pbStatus.setVisibility(View.VISIBLE);
+            bConnect.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_wifi_disabled_24dp, 0,0,0);
+        }else{
+            pbStatus.setVisibility(View.INVISIBLE);
+            bConnect.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_wifi_colored_24dp, 0,0,0);
+        }
+
+
     }
 
     private void onEsptoucResultAddedPerform(final IEsptouchResult result) {
@@ -491,11 +448,6 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
             }
         });
     }
-
-
-
-
-
     private class EsptouchAsyncTask4 extends AsyncTask<byte[], Void, List<IEsptouchResult>> {
         private WeakReference<LockEditActivity> mActivity;
 
@@ -519,15 +471,17 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
             if (mEsptouchTask != null) {
                 mEsptouchTask.interrupt();
             }
-            screenComponentsEnable(true);
         }
 
         @Override
         protected void onPreExecute() {
-            screenComponentsEnable(false);
 
             tvStatus.setText("Esptouch is configuring, " + '\n' +
                     "please wait for a moment...");
+
+
+            progressBarEnable(true);
+
 
 
         }
@@ -551,15 +505,19 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
             }
             return mEsptouchTask.executeForResults(taskResultCount);
         }
+        @Override
+        protected void onCancelled() {
+            progressBarEnable(false);
 
+        }
         @Override
         protected void onPostExecute(List<IEsptouchResult> result) {
+            progressBarEnable(false);
 
 
             if (result == null) {
 
 
-                screenComponentsEnable(true);
                 tvStatus.setVisibility(View.VISIBLE);
                 tvStatus.setText("Create Esptouch task failed, the esptouch " + '\n' +
                         "port could be used by other thread");
@@ -583,6 +541,8 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
                                 .append(resultInList.getInetAddress().getHostAddress())
                                 .append("\n");
                         deviceIpAddress = resultInList.getInetAddress().getHostAddress();
+                        //spEditor.putString("deviceIpAddress", deviceIpAddress);
+                        //spEditor.commit();
 
                         count++;
                         if (count >= maxDisplayCount) {
@@ -595,13 +555,13 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
 //                                .append(" more result(s) without showing\n");
 //                    }
                     tvStatus.setText("Device IP: " + deviceIpAddress);
-                    bSynchronize.setText(BUTTON_TEXT_START_SYNC);
+                    ipAddressReceived = true;
+                    buttonSyncEnableRequest();
+
                 } else {
                     deviceIpAddress = "";
-                    bSynchronize.setText(BUTTON_TEXT_CONNECT);
                     tvStatus.setText("Esptouch fail");
                 }
-                screenComponentsEnable(true);
                 tvStatus.setVisibility(View.VISIBLE);
 
             }
@@ -611,20 +571,16 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
     }
 
 
-//---------------------------------------------------------------------------------------------
 
     byte[]encryptedData = new byte[80];
     byte[]decryptedData = new byte[80];
     byte[] initVectorTX = new byte[16];
     byte[] initVectorRX = new byte[16];
 
-
-
     class NetworkTask extends AsyncTask< Bundle , Bundle , String> {
         private Socket nsocket; //Network Socket
         private String ipaddr;
         private int port = 0;
-        private boolean newLock;
         byte[] synchroKey = new byte[32];
         byte[] nonce = new byte[16];
         byte[] buffer = new byte[100];
@@ -633,7 +589,7 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
         byte[] doorOneId = new byte[4];
         byte[] doorTwoId = new byte[4];
         private ContentValues cvLock = new ContentValues();
-        ArrayList<ContentValues> cvUser = new ArrayList<ContentValues>();
+        ArrayList<ContentValues> cvAes = new ArrayList<ContentValues>();
         String lock1Title = etLock1Title.getText().toString();
         String lock2Title = etLock2Title.getText().toString();
 
@@ -648,19 +604,20 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
 
         @Override
         protected void onPreExecute() {
-            screenComponentsEnable(false);
             tvStatus.setText("Network connection started...");
             cvLock.put(LockDataContract.COLUMN_LOCK1_TITLE, lock1Title);
             cvLock.put(LockDataContract.COLUMN_LOCK2_TITLE, lock2Title);
+            progressBarEnable(true);
         }
 
         @Override
         protected String doInBackground(Bundle... bundle) {
-            if(deviceIpAddress.isEmpty())return "No IP address";
+            if(deviceIpAddress.length() == 0){
+                return "No IP address";
+            }
             ipaddr = deviceIpAddress;
             port = Integer.parseInt(bundle[0].getString("port"));
             synchroKey = bundle[0].getByteArray("syncKey");
-            newLock = bundle[0].getBoolean("newLockFlag");
             //    readLock = bundle[0].getBoolean("readLock");
 
             try {
@@ -739,6 +696,7 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
                     cvLock.put(LockDataContract.COLUMN_DOOR2_ID, Base64.encodeToString(doorTwoId, Base64.NO_WRAP));
                 }else if(memoryPage == CWMODE_PAGE){
                     cvLock.put(LockDataContract.COLUMN_CWMODE, dataToSave[0]);
+                    cvLock.putNull(LockDataContract.COLUMN_EXPIRED_AES_KEYS_PAGES);
                 }else if(memoryPage == CWSAP_SSID_PAGE){
                     String apSsid = new String(dataToSave).split("\0")[0];
                     cvLock.put(LockDataContract.COLUMN_CWSAP_SSID, apSsid);
@@ -770,29 +728,32 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
                         cv.put(LockDataContract.COLUMN_AES_DOOR1_ID, Base64.encodeToString(doorOneId, Base64.NO_WRAP));
                         cv.put(LockDataContract.COLUMN_AES_DOOR2_ID, Base64.encodeToString(doorTwoId, Base64.NO_WRAP));
                         cv.put(LockDataContract.COLUMN_AES_MEM_PAGE, memoryPage);
-                        cvUser.add(cv);
+                        cvAes.add(cv);
                     }
                 }
             }
         }
         @Override
         protected void onCancelled() {
+            progressBarEnable(false);
 
         }
         @Override
         protected void onPostExecute(String result) {
-
+            progressBarEnable(false);
             //door1IdString
-            mDb.delete(LockDataContract.TABLE_NAME_LOCK_DATA, LockDataContract.COLUMN_DOOR1_ID + "= ?", new String[]{door1IdString});
-            mDb.delete(LockDataContract.TABLE_NAME_AES_DATA, LockDataContract.COLUMN_AES_DOOR1_ID + "= ?", new String[]{door1IdString});
+            if(result.equals("Synchronization complete")) {
+                mDb.delete(LockDataContract.TABLE_NAME_LOCK_DATA, LockDataContract.COLUMN_DOOR1_ID + "= ?", new String[]{door1IdString});
+                mDb.delete(LockDataContract.TABLE_NAME_AES_DATA, LockDataContract.COLUMN_AES_DOOR1_ID + "= ?", new String[]{door1IdString});
 
-            mDb.insert(LockDataContract.TABLE_NAME_LOCK_DATA, null, cvLock);
-            for(ContentValues cv: cvUser){
-                mDb.insert(LockDataContract.TABLE_NAME_AES_DATA, null, cv);
+                long row = mDb.insert(LockDataContract.TABLE_NAME_LOCK_DATA, null, cvLock);
+                for (ContentValues cv : cvAes) {
+                    cv.put(LockDataContract.COLUMN_LOCK_ROW_ID, row);
+                    mDb.insert(LockDataContract.TABLE_NAME_AES_DATA, null, cv);
+                }
             }
-
             Toast.makeText(LockEditActivity.this, result, Toast.LENGTH_LONG).show();
-           // screenComponentsEnable(true);
+           // screenComponentsDisableOnStart(true);
             try {
                 nos.close();
                 nis.close();
@@ -819,8 +780,8 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
                     encrypted = encrypt(nonce, synchroKey);
                     System.arraycopy(encrypted, 0, initVectorRX, 0, 16);//SAVE it to receive message
                     System.arraycopy(encrypted, 0, encryptedFirst, 0, 16);//SAVE it to receive message
-                    if(newLock == true) encryptedFirst[16] = 0;//use of syncKey
-                    else encryptedFirst[16] = 1;//additional byte to make 17 bytes32 of data// use adminKey
+                    encryptedFirst[16] = 0;//TODO using of admin and sync key need to be handled
+                    //else encryptedFirst[16] = 1;//additional byte to make 17 bytes32 of data// use adminKey
                     return encryptedFirst;
 
                 case SYNC_XOR:
@@ -870,8 +831,6 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
             return 0;
         }
     }
-
-
     private byte[] getRtc(){
         Calendar c = Calendar.getInstance();
         int day    = c.get(Calendar.DAY_OF_MONTH);
@@ -881,7 +840,6 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
         int minute = c.get(Calendar.MINUTE);
         return timeIntToHex(hour, minute, day, month, year);
     }
-
     private byte[] timeIntToHex(int hour, int minute, int day, int month, int year){
         byte[] output = new byte[5];
         int tempX_, temp_X;
@@ -909,8 +867,6 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
 
         return output;
     }
-
-
     private static byte[] encrypt(byte[] data, byte[] initVector, byte[] key) {
         try {
             IvParameterSpec iv = new IvParameterSpec(initVector);
@@ -924,9 +880,6 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
         }
         return null;
     }
-
-
-
     private byte[] encrypt(byte[] data, byte[] key) {
         try {
             Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
@@ -939,8 +892,6 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
         }
         return null;
     }
-
-
     public byte[] decrypt(byte[] data, byte[] initVector, byte[] key) {
         try {
             IvParameterSpec iv = new IvParameterSpec(initVector);
@@ -954,14 +905,11 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
         }
         return null;
     }
-
     public byte XORcalc(byte[] input){
         byte output = input[0];
         for(int i=1; i<input.length; i++) output = (byte) (output ^ input[i]);
         return output;
     }
-
-
     void createArray (ArrayList<byte[]> array){
         byte[] data48 = new byte[48];
         byte[] data16 = new byte[16];
@@ -1098,15 +1046,14 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
                 array.add(data16.clone());
             }
     }
-
-
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        spEditor.putBoolean("spShowSavedData", false);
-        spEditor.commit();
+        //spEditor.putBoolean("spShowSavedData", false);
+        //spEditor.commit();
 
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

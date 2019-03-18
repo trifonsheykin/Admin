@@ -6,13 +6,4 @@
     android:layout_height="match_parent"
     tools:context=".SettingsActivity">
 
-    <CheckBox
-        android:id="@+id/cbScanQrFirst"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/title_set_qr_on_start"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>

@@ -17,19 +17,20 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:paddingLeft="16dp"
-            android:src="@drawable/ic_fiber_manual_record_black_24dp"
+            android:src="@drawable/ic_vpn_key_colored_24dp"
             android:visibility="visible"
-            tools:srcCompat="@drawable/ic_fiber_manual_record_black_24dp" />
+            tools:srcCompat="@drawable/ic_vpn_key_colored_24dp" />
+
 
         <TextView
             android:id="@+id/tvKeyTitle"
             android:layout_width="match_parent"
-            android:layout_height="63dp"
-            android:layout_marginLeft="24dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
             android:layout_weight="1"
             android:gravity="center_vertical"
             android:paddingTop="21dp"
-            android:text="Hello"
+            android:text="Key title"
             android:textSize="20dp" />
 
     </LinearLayout>

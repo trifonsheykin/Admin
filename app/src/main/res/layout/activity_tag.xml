@@ -8,90 +8,112 @@
 
     <Button
         android:id="@+id/b_lock_select"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text="@string/title_select_lock"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="8dp"
+        android:drawableStart="@drawable/ic_https_colored_24dp"
+        android:text="  select lock"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <RadioGroup
         android:id="@+id/rg_lock_select"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        app:layout_constraintStart_toEndOf="@+id/b_lock_select"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <RadioButton
             android:id="@+id/rb_door1_select"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/title_door1_select"
+            android:layout_height="36dp"
+            android:enabled="false"
+            android:text="Door 1"
             tools:layout_editor_absoluteX="34dp"
             tools:layout_editor_absoluteY="162dp" />
 
         <RadioButton
             android:id="@+id/rb_door2_select"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/title_door2_select"
+            android:layout_height="36dp"
+            android:layout_marginTop="8dp"
+            android:enabled="false"
+            android:text="Door 2"
             tools:layout_editor_absoluteX="34dp"
             tools:layout_editor_absoluteY="194dp" />
     </RadioGroup>
 
     <ImageView
         android:id="@+id/iv_qr"
-        android:layout_width="158dp"
-        android:layout_height="156dp"
-        android:layout_marginStart="48dp"
-        android:layout_marginTop="50dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="8dp"
         android:contentDescription="@string/title_generate_qr"
-        app:layout_constraintStart_toEndOf="@+id/b_generate_qr"
+        app:layout_constraintBottom_toTopOf="@+id/b_share_qr"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/s_nfc_write"
+        app:srcCompat="@drawable/ic_qr_code" />
+
+    <Button
+        android:id="@+id/b_print_qr"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:drawableStart="@drawable/ic_print_white_24dp"
+        android:enabled="false"
+        android:text="  print qr code"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/b_share_qr"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:enabled="false"
+        android:text="share"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/b_print_qr" />
+
+    <Switch
+        android:id="@+id/s_nfc_write"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="16dp"
+        android:enabled="false"
+        android:switchPadding="@dimen/fab_margin"
+        android:text="NFC tag write"
+        app:layout_constraintBottom_toTopOf="@+id/b_print_qr"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rg_lock_select" />
+
+    <ImageView
+        android:id="@+id/iv_nfc"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="24dp"
+        android:adjustViewBounds="true"
+        android:cropToPadding="true"
+        app:layout_constraintBottom_toTopOf="@+id/s_nfc_write"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/rg_lock_select"
-        app:srcCompat="@drawable/pic_qr_scan" />
-
-    <Button
-        android:id="@+id/b_generate_qr"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="82dp"
-        android:text="@string/title_generate_qr"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/b_lock_select" />
-
-    <Button
-        android:id="@+id/b_save_qr"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
-        android:text="@string/title_save_qr"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/b_generate_qr" />
-
-    <Button
-        android:id="@+id/b_generate_nfc"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="105dp"
-        android:text="@string/title_write_nfc"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/b_save_qr" />
-
-    <TextView
-        android:id="@+id/tv_nfc_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="103dp"
-        android:text="@string/title_nfc_status"
-        app:layout_constraintStart_toEndOf="@+id/b_generate_nfc"
-        app:layout_constraintTop_toBottomOf="@+id/iv_qr" />
+        app:srcCompat="@drawable/ic_nfc_disabled_24dp" />
 
 
 </android.support.constraint.ConstraintLayout>

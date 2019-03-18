@@ -31,7 +31,7 @@ public class LockMainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     long id = (long) view.getTag();
-                    Intent intent= new Intent(LockMainActivity.this, LockEditActivity.class);
+                    Intent intent= new Intent(LockMainActivity.this, LockInfoActivity.class);
                     intent.putExtra("rowId", id);
                     startActivityForResult(intent, EDIT_LOCK);////request code edit lock
                 } };
@@ -43,7 +43,11 @@ public class LockMainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_lock_main);
 
         recyclerView = findViewById(R.id.lockRecycler);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setReverseLayout(true);
+        linearLayoutManager.setStackFromEnd(true);
+        recyclerView.setLayoutManager(linearLayoutManager);
 
         DbHelper dbHelperLock = DbHelper.getInstance(this);
         mDb = dbHelperLock.getWritableDatabase();
@@ -96,8 +100,8 @@ public class LockMainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        dataAdapterLock.swapCursor(getAllLocks());
         if(resultCode == RESULT_OK){
-            dataAdapterLock.swapCursor(getAllLocks());
             recyclerView.smoothScrollToPosition(dataAdapterLock.getItemCount());
         }
     }

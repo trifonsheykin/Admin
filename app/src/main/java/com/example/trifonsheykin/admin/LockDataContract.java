@@ -12,18 +12,25 @@ public final class LockDataContract implements BaseColumns {
         public static final String COLUMN_AES_DOOR1_ID = "aesDoor1Id";
         public static final String COLUMN_AES_DOOR2_ID = "aesDoor2Id";
         public static final String COLUMN_AES_MEM_PAGE = "aesMemPage";
+//      public static final String COLUMN_LOCK_ROW_ID = "lockTableId";//TABLE_NAME_USER_DATA  TABLE_NAME_AES_DATA
+        /*
+        * chaeck all users access time by access code
+        *
+        *
+        *
+        *
+        * */
+
 
         public static final String TABLE_NAME_USER_DATA = "userData";
         public static final String COLUMN_USER_NAME = "userName";
         public static final String COLUMN_USER_LOCKS = "userLocks";
-        public static final String COLUMN_USER_AES_KEY = "userAes";
-        public static final String COLUMN_USER_ID = "userId";
-        public static final String COLUMN_USER_PASS_DATA = "userPassData";
-        public static final String COLUMN_USER_START_DOOR1_TIME = "startDoor1Time";
-        public static final String COLUMN_USER_START_DOOR2_TIME = "startDoor2Time";
-        public static final String COLUMN_USER_STOP_DOOR1_TIME = "stopDoor1Time";
-        public static final String COLUMN_USER_STOP_DOOR2_TIME = "stopDoor2Time";
-        public static final String COLUMN_USER_MEM_PAGE = "userMemPage";
+        public static final String COLUMN_USER_ACCESS_CODE = "userAccessCode";//access code contains
+        public static final String COLUMN_AC_CREATION_DATE = "userCreationDate";
+        public static final String COLUMN_USER_KEY_TITLE = "userKeyTitle";
+        public static final String COLUMN_AES_KEY_ROW_ID = "aesKeyRowId";
+        public static final String COLUMN_LOCK_ROW_ID = "lockTableId";//TABLE_NAME_USER_DATA  TABLE_NAME_AES_DATA
+        public static final String COLUMN_USER_EXPIRED = "userAccessExpired";
 
         public static final String TABLE_NAME_KEY_DATA = "keyData";
         public static final String COLUMN_KEY_NAME = "keyName";
@@ -44,6 +51,8 @@ public final class LockDataContract implements BaseColumns {
         public static final String COLUMN_CWSAP_SSID = "cwsap_ssid";//
         public static final String COLUMN_CWSAP_PWD = "cwsap_pwd";//
         public static final String COLUMN_CWMODE = "cwmode";
+        public static final String COLUMN_EXPIRED_AES_KEYS_PAGES = "expiredAesKeys";
+
 
         public static final String COLUMN_TIMESTAMP = "timestamp";
 

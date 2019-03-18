@@ -26,7 +26,7 @@
     <string name="qr_reader_label">QR scanner</string>
 
     <string name="key_edit_label">Key edit</string>
-    <string name="user_edit_label">User edit</string>
+    <string name="user_edit_label">New user</string>
     <string name="lock_edit_label">Lock edit</string>
 
 
@@ -66,8 +66,8 @@
     <string name="title_select_key">Select key</string>
     <string name="title_selected_lock">Selected lock</string>
     <string name="title_selected_key">Selected key</string>
-    <string name="title_select_start_datetime">Select start time</string>
-    <string name="title_select_stop_datetime">Select stop time</string>
+    <string name="title_select_start_datetime">15:49\n\n13.02.2019</string>
+    <string name="title_select_stop_datetime">Stop time</string>
     <string name="title_selected_start_datetime">Selected start time</string>
     <string name="title_selected_stop_datetime">Selected stop time</string>
     <string name="title_save">Save</string>
@@ -81,7 +81,6 @@
     <string name="title_save_qr">Save QR code</string>
     <string name="title_write_nfc">Generate NFC tag</string>
     <string name="title_nfc_status">NFC status</string>
-
 
 
 </resources>

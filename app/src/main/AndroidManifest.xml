@@ -9,6 +9,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <uses-feature
         android:name="android.hardware.nfc"
@@ -24,6 +26,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,92 +36,142 @@
         </activity>
         <activity
             android:name=".Lock.LockMainActivity"
-            android:label="@string/lock_label">
+            android:label="@string/lock_label"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.trifonsheykin.admin.MainActivity" />
         </activity>
         <activity
             android:name=".Lock.LockEditActivity"
-            android:label="@string/lock_edit_label">
+            android:label="New lock"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.trifonsheykin.admin.Lock.LockMainActivity" />
         </activity>
         <activity
             android:name=".Key.KeyMainActivity"
-            android:label="@string/key_label">
+            android:label="@string/key_label"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.trifonsheykin.admin.MainActivity" />
         </activity>
         <activity
             android:name=".Key.KeyEditActivity"
-            android:label="@string/key_edit_label">
+            android:label="@string/key_edit_label"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.trifonsheykin.admin.Key.KeyMainActivity" />
         </activity>
         <activity
             android:name=".User.UserMainActivity"
-            android:label="@string/user_label">
+            android:label="@string/user_label"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.trifonsheykin.admin.MainActivity" />
         </activity>
         <activity
             android:name=".User.UserEditActivity"
-            android:label="@string/user_edit_label">
+            android:label="@string/user_edit_label"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.trifonsheykin.admin.User.UserMainActivity" />
         </activity>
         <activity
             android:name=".Key.KeySelectActivity"
-            android:label="@string/title_select_key">
+            android:label="@string/title_select_key"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.trifonsheykin.admin.Key.KeySelectActivity"/>
+                android:value="com.example.trifonsheykin.admin.Key.KeySelectActivity" />
         </activity>
         <activity
             android:name=".Lock.LockSelectActivity"
-            android:label="@string/title_select_lock">
+            android:label="@string/title_select_lock"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.trifonsheykin.admin.Lock.LockSelectActivity"/>
+                android:value="com.example.trifonsheykin.admin.Lock.LockSelectActivity" />
         </activity>
         <activity
             android:name=".TagActivity"
-            android:label="@string/tag_label">
+            android:label="@string/tag_label"
+            android:screenOrientation="portrait">
             <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
 
-                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.trifonsheykin.admin.MainActivity" />
         </activity>
         <activity
             android:name=".QrReadActivity"
-            android:label="@string/qr_reader_label">
+            android:label="@string/qr_reader_label"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.trifonsheykin.admin.MainActivity" />
         </activity>
         <activity
             android:name=".SettingsActivity"
-            android:label="@string/settings_label">
+            android:label="@string/settings_label"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.trifonsheykin.admin.MainActivity" />
         </activity>
-        <activity android:name=".HelpActivity"
-            android:label="@string/help_label">
+        <activity
+            android:name=".HelpActivity"
+            android:label="@string/help_label"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.trifonsheykin.admin.MainActivity" />
         </activity>
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.example.trifonsheykin.admin.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepath" />
+        </provider>
+
+        <activity
+            android:name=".User.UserInfoActivity"
+            android:label="User info"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.trifonsheykin.admin.User.UserMainActivity" />
+        </activity>
+        <activity
+            android:name=".Key.KeyInfoActivity"
+            android:label="Key info"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.trifonsheykin.admin.Key.KeyMainActivity" />
+        </activity>
+        <activity
+            android:name=".Lock.LockInfoActivity"
+            android:label="Lock info"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.trifonsheykin.admin.Lock.LockMainActivity" />
+        </activity>
+
     </application>
 
 </manifest>

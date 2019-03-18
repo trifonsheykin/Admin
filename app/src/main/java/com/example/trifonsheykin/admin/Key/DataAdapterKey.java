@@ -49,7 +49,7 @@ public class DataAdapterKey extends RecyclerView.Adapter<ViewHolderKey>  {
 
         holder.keyTitle.setText(keyTitle);
 
-        holder.keyUser.setText(lockTitle);
+        holder.keyUser.setText("Locks: " + lockTitle);
 
         holder.itemView.setTag(id);
     }
