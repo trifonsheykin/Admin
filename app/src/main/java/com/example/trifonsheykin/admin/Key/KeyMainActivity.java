@@ -2,8 +2,10 @@ package com.example.trifonsheykin.admin.Key;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -30,6 +32,8 @@ public class KeyMainActivity extends AppCompatActivity {
     private SQLiteDatabase mDb;
     private DataAdapterKey dataAdapterKey;
     private Cursor cursor;
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor spEditor;
 
     private final View.OnClickListener keyItemClickListener =
             new View.OnClickListener() {
@@ -58,6 +62,8 @@ public class KeyMainActivity extends AppCompatActivity {
         cursor = getAllKeys();
         dataAdapterKey = new DataAdapterKey(this, cursor, keyItemClickListener);
         recyclerViewKey.setAdapter(dataAdapterKey);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        spEditor = sharedPreferences.edit();
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
 
@@ -69,6 +75,13 @@ public class KeyMainActivity extends AppCompatActivity {
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 long id = (long) viewHolder.itemView.getTag();
+                long spId = sharedPreferences.getLong("keyRowId", -1);//sharedPreferences.getLong("keyRowId", -1)
+                if(id == spId){
+                    spEditor.putLong("keyRowId", -1);
+                    spEditor.putString("keyButton", "default key");
+                    spEditor.commit();
+                }
+
                 removeKey(id);//remove from DB
                 dataAdapterKey.swapCursor(getAllKeys());//update the list
             }

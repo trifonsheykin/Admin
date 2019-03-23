@@ -1,8 +1,10 @@
 package com.example.trifonsheykin.admin.Lock;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,6 +25,8 @@ public class LockMainActivity extends AppCompatActivity {
     private SQLiteDatabase mDb;
     private DataAdapterLock dataAdapterLock;
     private Cursor cursor;
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor spEditor;
 
     private RecyclerView recyclerView;
 
@@ -55,6 +59,8 @@ public class LockMainActivity extends AppCompatActivity {
         cursor = getAllLocks();
         dataAdapterLock = new DataAdapterLock(this, cursor, itemClickListener);
         recyclerView.setAdapter(dataAdapterLock);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        spEditor = sharedPreferences.edit();
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
@@ -65,6 +71,12 @@ public class LockMainActivity extends AppCompatActivity {
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
                 long id = (long) viewHolder.itemView.getTag();
+                long spId = sharedPreferences.getLong("lockRowId", -1);
+                if(id == spId){
+                    spEditor.putLong("lockRowId", -1);
+                    spEditor.putString("lockButton", "default lock");
+                    spEditor.commit();
+                }
                 removeLock(id);
                 dataAdapterLock.swapCursor(getAllLocks());
             }

@@ -48,7 +48,12 @@ public class DataAdapterLock extends RecyclerView.Adapter<ViewHolderLock> {
             ssidTitle = "No SSID";
         }
         long id = cursor.getLong(cursor.getColumnIndex(LockDataContract._ID));
-        holder.locksTitle.setText(lock1Title + " | " + lock2Title);
+        if(cursor.getBlob(cursor.getColumnIndex(LockDataContract.COLUMN_EXPIRED_AES_KEYS_PAGES)) == null){
+            holder.imageView.setImageResource(R.drawable.ic_https_colored_24dp);
+        }else{
+            holder.imageView.setImageResource(R.drawable.ic_sync_colored_24dp);
+        }
+        holder.locksTitle.setText(lock1Title + " & " + lock2Title);
         holder.ssidTitle.setText(ssidTitle);
         holder.itemView.setTag(id);
     }

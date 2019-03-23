@@ -454,13 +454,15 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
             onKeyLockSelected();
         }else{
             lockSelected = false;
+            cbDoor1.setText("LOCK ERROR");
+            cbDoor2.setText("LOCK ERROR");
             onKeyLockSelected();
         }
     }
 
     private void checkKeySelected(){
         if(keyRowId == -1) {
-            tvSelectedKey.setText("ERROR ROW ID");
+            tvSelectedKey.setText("KEY ERROR");
             keySelected = false;
             onKeyLockSelected();
         }else{

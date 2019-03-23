@@ -158,9 +158,6 @@ public class MainActivity extends AppCompatActivity
 //            startActivityForResult(intent, 0);
 //        }
 
-        bDefaultLock.setText(sharedPreferences.getString("lockButton", "default lock"));
-        bDefaultKey.setText(sharedPreferences.getString("keyButton", "default key"));
-
         FloatingActionButton fab = findViewById(R.id.fab_main);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -200,6 +197,16 @@ public class MainActivity extends AppCompatActivity
         cursor.close();
 
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        bDefaultLock.setText(sharedPreferences.getString("lockButton", "default lock"));
+        bDefaultKey.setText(sharedPreferences.getString("keyButton", "default key"));
+
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -365,10 +372,6 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_tags) {
             Intent intent = new Intent(MainActivity.this, TagActivity.class);
-            startActivity(intent);
-
-        } else if (id == R.id.nav_settings) {
-            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
             startActivity(intent);
 
         } else if (id == R.id.nav_help) {

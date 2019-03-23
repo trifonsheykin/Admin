@@ -121,14 +121,6 @@
                 android:value="com.example.trifonsheykin.admin.MainActivity" />
         </activity>
         <activity
-            android:name=".SettingsActivity"
-            android:label="@string/settings_label"
-            android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.trifonsheykin.admin.MainActivity" />
-        </activity>
-        <activity
             android:name=".HelpActivity"
             android:label="@string/help_label"
             android:screenOrientation="portrait">
