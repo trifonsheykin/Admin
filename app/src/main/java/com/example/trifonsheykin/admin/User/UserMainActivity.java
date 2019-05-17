@@ -145,30 +145,34 @@ public class UserMainActivity extends AppCompatActivity {
                 null,
                 LockDataContract.COLUMN_TIMESTAMP
         );
-        cursorLock.moveToPosition(0);
-        byte[] expiredAes  = cursorLock.getBlob(cursorLock.getColumnIndex(LockDataContract.COLUMN_EXPIRED_AES_KEYS_PAGES));
-        ContentValues cv = new ContentValues();
-        if(expiredAes == null){
-            byte[] newExpiredAes = {userTag};
-            cv.put(LockDataContract.COLUMN_EXPIRED_AES_KEYS_PAGES, newExpiredAes);
-        }else{
-            boolean byteFound = false;
-            for(byte b: expiredAes){
-                if(b == userTag) byteFound = true;
-            }
-            if(byteFound){
-                cv.put(LockDataContract.COLUMN_EXPIRED_AES_KEYS_PAGES, expiredAes);
+
+        if(cursorLock.getCount() != 0){
+            cursorLock.moveToPosition(0);
+            byte[] expiredAes  = cursorLock.getBlob(cursorLock.getColumnIndex(LockDataContract.COLUMN_EXPIRED_AES_KEYS_PAGES));
+            ContentValues cv = new ContentValues();
+            if(expiredAes == null){
+                byte[] newExpiredAes = {userTag};
+                cv.put(LockDataContract.COLUMN_EXPIRED_AES_KEYS_PAGES, newExpiredAes);
             }else{
-                byte[] newExpAes = new byte[expiredAes.length+1];
-                System.arraycopy(expiredAes, 0, newExpAes, 0, expiredAes.length);
-                newExpAes[expiredAes.length] = userTag;
-                cv.put(LockDataContract.COLUMN_EXPIRED_AES_KEYS_PAGES, newExpAes);
+                boolean byteFound = false;
+                for(byte b: expiredAes){
+                    if(b == userTag) byteFound = true;
+                }
+                if(byteFound){
+                    cv.put(LockDataContract.COLUMN_EXPIRED_AES_KEYS_PAGES, expiredAes);
+                }else{
+                    byte[] newExpAes = new byte[expiredAes.length+1];
+                    System.arraycopy(expiredAes, 0, newExpAes, 0, expiredAes.length);
+                    newExpAes[expiredAes.length] = userTag;
+                    cv.put(LockDataContract.COLUMN_EXPIRED_AES_KEYS_PAGES, newExpAes);
+                }
+
             }
+            mDb.update(LockDataContract.TABLE_NAME_LOCK_DATA, cv,
+                    LockDataContract._ID + "= ?", new String[] {String.valueOf(lockId)});
+            cursorLock.close();
 
         }
-        mDb.update(LockDataContract.TABLE_NAME_LOCK_DATA, cv,
-                LockDataContract._ID + "= ?", new String[] {String.valueOf(lockId)});
-        cursorLock.close();
         newcursor.close();
 
     }

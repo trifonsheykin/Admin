@@ -1,9 +1,10 @@
 <resources>
-    <string name="app_name">Admin</string>
+    <string name="app_name">SmartLock\nAdmin</string>
+    <string name="main_title">Admin</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_title">SmartLocks LLC</string>
+    <string name="nav_header_subtitle">www.smartlocks.store</string>
     <string name="nav_header_desc">Navigation header</string>
 
 

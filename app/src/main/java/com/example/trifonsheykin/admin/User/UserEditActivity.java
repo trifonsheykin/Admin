@@ -133,6 +133,7 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
         bStopTimeDoor1 = findViewById(R.id.b_stop_door1);
         bStartTimeDoor2 = findViewById(R.id.b_start_door2);
         bStopTimeDoor2 = findViewById(R.id.b_stop_door2);
+        bSaveData.setEnabled(false);
 
 
         DbHelper dbHelperLock = DbHelper.getInstance(this);
@@ -330,7 +331,8 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
         if((etUserName.getText().toString().length() != 0)
                 && (cbDoor1.isChecked() || cbDoor2.isChecked())
                 && !(cbDoor1.isChecked() && !door1StopTimeSelected)
-                && !(cbDoor2.isChecked() && !door2StopTimeSelected)){
+                && !(cbDoor2.isChecked() && !door2StopTimeSelected)
+                && lockSelected && keySelected){
             bSaveData.setEnabled(true);
         }else{
             bSaveData.setEnabled(false);

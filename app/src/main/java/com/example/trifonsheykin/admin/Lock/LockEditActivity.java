@@ -61,7 +61,7 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
     private static final int SYNC_FIRST = 1;
     private static final int SYNC_XOR = 2;
     private static final int SYNC_FLOW = 3;
-    private static final int LAST_USER_BOUND = 100;
+    private static final int LAST_USER_BOUND = 212;
 
     private static final int DOORID_PAGE = 1;
     private static final int CWMODE_PAGE = 2;

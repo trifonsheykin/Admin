@@ -95,7 +95,7 @@ radiobutton:
     private static final int SYNC_FIRST = 1;
     private static final int SYNC_XOR = 2;
     private static final int SYNC_FLOW = 3;
-    private static final int LAST_USER_BOUND = 100;
+    private static final int LAST_USER_BOUND = 212;
     private static final String ESP_AP_STATIC_IP = "192.168.4.1";
     private static final int DOORID_PAGE = 1;
     private static final int CWMODE_PAGE = 2;
@@ -533,7 +533,7 @@ radiobutton:
                 aesCursor.moveToNext();
             }
             tvInfo.append("\nAll AES keys: " + count);
-            tvInfo.append("\nAvailable AES keys: " + availableAES);
+            tvInfo.append("\nAvailable AES keys: " + (availableAES-1));
             tvInfo.append("\nAES keys in use: " + (count - availableAES));
 
         }else{

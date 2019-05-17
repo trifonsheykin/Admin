@@ -121,7 +121,10 @@ public class TagActivity extends AppCompatActivity {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 if(rbDoorOne.isChecked()){
                     qrImageUpdate(cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_DOOR1_ID)));
+                    doorId = cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_DOOR1_ID));
+
                 }else if(rbDoorTwo.isChecked()){
+                    doorId = cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_DOOR2_ID));
                     qrImageUpdate(cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_DOOR2_ID)));
                 }
             }
