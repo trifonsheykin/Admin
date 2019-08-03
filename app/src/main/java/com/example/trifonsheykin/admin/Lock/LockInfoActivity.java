@@ -37,6 +37,7 @@ import com.example.trifonsheykin.admin.DbHelper;
 import com.example.trifonsheykin.admin.LockDataContract;
 import com.example.trifonsheykin.admin.R;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
@@ -849,7 +850,17 @@ radiobutton:
             if(deviceIpAddress.length() == 0){
                 return "No IP address";
             }
+
+            WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            if(!wifiManager.isWifiEnabled()) {
+                return "ERROR 01: turn ON your Wi-Fi adapter";
+            }
             ipaddr = deviceIpAddress;
+            if(!isConecctedToDevice(ipaddr)){
+                return "ERROR 04: device's IP address (" + ipaddr + ") not found";
+
+            }
+
             port = Integer.parseInt(bundle[0].getString("port"));
             synchroKey = bundle[0].getByteArray("syncKey");
             //    readLock = bundle[0].getBoolean("readLock");
@@ -903,7 +914,16 @@ radiobutton:
 
         }
 
-
+        public boolean isConecctedToDevice(String ip) {
+            Runtime runtime = Runtime.getRuntime();
+            try {
+                Process ipProcess = runtime.exec("/system/bin/ping -c 1 " + ip);
+                int     exitValue = ipProcess.waitFor();
+                return (exitValue == 0);
+            } catch (IOException e)          { e.printStackTrace(); }
+            catch (InterruptedException e) { e.printStackTrace(); }
+            return false;
+        }
         @Override
         protected void onProgressUpdate(Bundle... b) {
             byte[] requestSent = b[0].getByteArray("inputData").clone();

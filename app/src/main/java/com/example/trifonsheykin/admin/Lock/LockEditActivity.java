@@ -61,6 +61,7 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
     private static final int SYNC_FIRST = 1;
     private static final int SYNC_XOR = 2;
     private static final int SYNC_FLOW = 3;
+    private static final int ERROR = 4;
     private static final int LAST_USER_BOUND = 212;
 
     private static final int DOORID_PAGE = 1;
@@ -175,6 +176,7 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lock_edit);
 
+
         //sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         //spEditor = sharedPreferences.edit();
         ipAddressReceived = false;
@@ -277,7 +279,7 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
         }else{
             bConnect.setEnabled(true);
             bConnect.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_wifi_colored_24dp, 0,0,0);
-            tvStatus.setText("Make sure the lock is in configuration mode");
+            tvStatus.setText("Press MODE button on device\nbefore CONNECT");
         }
 
     }
@@ -396,14 +398,19 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == RESULT_OK){
             String result = data.getStringExtra("result");
-            syncKey = Base64.decode(result, Base64.DEFAULT);
-            if(rbAccessPoint.isChecked())deviceIpAddress = ESP_AP_STATIC_IP;
-            NetworkTask networktask = new NetworkTask(); //New instance of NetworkTask
-            Bundle myBundle = espStartSynchronization();
-            networktask.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR,myBundle);
+            if(result.length() != 44){
+                tvStatus.setVisibility(View.VISIBLE);
+                tvStatus.setText("Sync key not found");
+            }else{
+                syncKey = Base64.decode(result, Base64.DEFAULT);
+                if(rbAccessPoint.isChecked())deviceIpAddress = ESP_AP_STATIC_IP;
+                NetworkTask networktask = new NetworkTask(); //New instance of NetworkTask
+                Bundle myBundle = espStartSynchronization();
+                networktask.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR,myBundle);
+            }
         }else{
             tvStatus.setVisibility(View.VISIBLE);
-            tvStatus.setText("No QR data");
+            tvStatus.setText("Sync key not found");
         }
     }
     private Bundle espStartSynchronization(){
@@ -595,19 +602,22 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
 
 
 
+
         int byteCnt;
         InputStream nis; //Network Input Stream
         OutputStream nos; //Network Output Stream
 
         byte[] temp = new byte[16];
         int dialogStage;
-
+        int memPages = 0;
         @Override
         protected void onPreExecute() {
             tvStatus.setText("Network connection started...");
             cvLock.put(LockDataContract.COLUMN_LOCK1_TITLE, lock1Title);
             cvLock.put(LockDataContract.COLUMN_LOCK2_TITLE, lock2Title);
+            memPages = 0;
             progressBarEnable(true);
+
         }
 
         @Override
@@ -616,6 +626,7 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
                 return "No IP address";
             }
             ipaddr = deviceIpAddress;
+
             port = Integer.parseInt(bundle[0].getString("port"));
             synchroKey = bundle[0].getByteArray("syncKey");
             //    readLock = bundle[0].getBoolean("readLock");
@@ -655,6 +666,7 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
                                 TimeUnit.MILLISECONDS.sleep(150);
                             }
                         }
+                        if(dialogStage == ERROR) break;
                     }while(dialogStage != SYNC_FLOW);
                     //-------------------------------------------------------------------------
 
@@ -664,10 +676,17 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            if(dialogStage == ERROR){
+                return "Synchronization error, check sync key";
+            }
             return "Synchronization complete";
 
 
+
+
         }
+
+
 
 
         @Override
@@ -677,10 +696,11 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
             String reqSent = new String(requestSent).split("\0")[0];
             byte[] dataToSave = new byte[32];
             int memoryPage = LAST_USER_BOUND+1;
+            memPages++;
             if(reqSent.contains("rtc") || reqSent.contains("restart") || reqSent.contains("sync stop")){
-                tvStatus.setText(reqSent);
+                tvStatus.setText(reqSent + "\n" + memPages + " of 214");
             }else{
-                tvStatus.setText(reqSent);
+                tvStatus.setText(reqSent + "\n" + memPages + " of 214");
                 String page = reqSent.split("\\D+")[1];
                 if(!page.isEmpty()) memoryPage = Integer.parseInt(page);
                 if(reqSent.contains("set memory")){
@@ -741,6 +761,7 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
         @Override
         protected void onPostExecute(String result) {
             progressBarEnable(false);
+            Toast.makeText(LockEditActivity.this, result, Toast.LENGTH_LONG).show();
             //door1IdString
             if(result.equals("Synchronization complete")) {
                 mDb.delete(LockDataContract.TABLE_NAME_LOCK_DATA, LockDataContract.COLUMN_DOOR1_ID + "= ?", new String[]{door1IdString});
@@ -751,8 +772,11 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
                     cv.put(LockDataContract.COLUMN_LOCK_ROW_ID, row);
                     mDb.insert(LockDataContract.TABLE_NAME_AES_DATA, null, cv);
                 }
+                Intent intent = new Intent();
+                setResult(RESULT_OK, intent);
+                finish();
+
             }
-            Toast.makeText(LockEditActivity.this, result, Toast.LENGTH_LONG).show();
            // screenComponentsDisableOnStart(true);
             try {
                 nos.close();
@@ -762,9 +786,6 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
                 e.printStackTrace();
             }
 
-            Intent intent = new Intent();
-            setResult(RESULT_OK, intent);
-            finish();
 
         }
 
@@ -812,14 +833,16 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
                     decryptedData = decrypt(temp, initVectorRX, synchroKey);
                     XORin = decryptedData[15];
                     if (XORcheck == XORin) return SYNC_XOR;
-                    else return FINISH;
+                    else {
+                       return ERROR;
+                    }
 
                 case SYNC_XOR:
                     System.arraycopy(buffer, 0, initVectorTX, 0, 16);
                     System.arraycopy(buffer, 0, temp, 0, byteCnt);
                     decryptedData = decrypt(temp, initVectorRX, synchroKey);
                     if(new String(decryptedData).contains("SYNC START OK"))return SYNC_FLOW;
-                    else return FINISH;
+                    else return ERROR;
                 case SYNC_FLOW:
 
                     return SYNC_FLOW;

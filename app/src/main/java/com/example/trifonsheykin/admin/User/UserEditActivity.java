@@ -155,7 +155,7 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
             d1stopYear   = d2stopYear  = intent.getIntExtra("year", d1stopYear);
             door1StopTimeSelected = true;
             door2StopTimeSelected = true;
-            etUserName.setText("New user");
+            etUserName.setText("");
             setDateTimeFinalDoor1();
             setDateTimeFinalDoor2();
             checkLockSelected();

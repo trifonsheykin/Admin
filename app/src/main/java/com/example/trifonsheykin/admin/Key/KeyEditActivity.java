@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -51,7 +52,7 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
     KeyNetworkTask keyNetworkTask;
     private SQLiteDatabase mDb;
     private Cursor cursor;
-    byte[] wiegandRealPass = new byte[8];
+    byte[] wiegandRealPass = {0x1a, (byte)0x82, (byte)0xaf, 0x5f, 0x02, 0x00, 0x00, 0x00};//new byte[8];
     byte[] initVectorTX = new byte[16];
     byte[] initVectorRX = new byte[16];
     byte[] txData = new byte[80];
@@ -478,10 +479,16 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
             prepareData(bundles[0]);
             int read = 0;
             int dialogStage = 0;
-            if(!isConecctedToDevice()){
-                publishProgress("Not connected.\nCheck your Wi-Fi network\nsettings or select another lock");
+            WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            if(!wifiManager.isWifiEnabled()) {
+                publishProgress("Not connected.\nTurn on Wi-Fi");
                 return null;
             }
+            if(!isConecctedToDevice()){
+                publishProgress("IP address "+ipaddr+" not found.\nCheck your Wi-Fi network\nsettings or select another lock");
+                return null;
+            }
+
             try {
                 nsocket = new Socket(ipaddr, port);
                 if (nsocket.isConnected()) {
