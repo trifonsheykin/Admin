@@ -53,6 +53,8 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
     private SQLiteDatabase mDb;
     private Cursor cursor;
     byte[] wiegandRealPass = {0x1a, (byte)0x82, (byte)0xaf, 0x5f, 0x02, 0x00, 0x00, 0x00};//new byte[8];
+                           //00011010 10000010 10101111 01011111 00000010
+    //byte[] wiegandSecondPass = {0x1a, (byte)0x82, (byte)0xaf, 0x5c, 0x02, 0x00, 0x00, 0x00};//new byte[8];
     byte[] initVectorTX = new byte[16];
     byte[] initVectorRX = new byte[16];
     byte[] txData = new byte[80];

@@ -733,6 +733,7 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
                     cvLock.put(LockDataContract.COLUMN_SECRET_KEY, dataToSave);
                 }else if(memoryPage == CIPIP_PAGE){
                     String ipString = new String(dataToSave).split("\0")[0];
+                    if(rbAccessPoint.isChecked())ipString = ESP_AP_STATIC_IP;
                     cvLock.put(LockDataContract.COLUMN_CIPSTA_IP, ipString);
                 }else if(memoryPage == ADM_KEY_PAGE){
                     cvLock.put(LockDataContract.COLUMN_ADM_KEY, dataToSave);

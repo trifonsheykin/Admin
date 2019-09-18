@@ -660,6 +660,10 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
 
         secretKey = lockCursor.getBlob(lockCursor.getColumnIndex(LockDataContract.COLUMN_SECRET_KEY));
         String ip = lockCursor.getString(lockCursor.getColumnIndex(LockDataContract.COLUMN_CIPSTA_IP));
+        int mode = lockCursor.getInt(lockCursor.getColumnIndex(LockDataContract.COLUMN_CWMODE));
+        if(mode == 2) {//private static final int SOFTAP = 2;
+            ip = "192.168.4.1";
+        }
         ipAddr = ipStrToHex(ip);
         String s = lockCursor.getString(lockCursor.getColumnIndex(LockDataContract.COLUMN_DOOR1_ID));
         doorId = Base64.decode(s, Base64.DEFAULT);
