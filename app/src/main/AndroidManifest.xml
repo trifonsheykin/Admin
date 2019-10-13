@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.trifonsheykin.admin">
+    package="com.smartlocks.trifonsheykin.admin">
 
     <uses-permission android:name="android.permission.NFC" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -24,7 +24,7 @@
         android:supportsRtl="false"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name="com.smartlocks.trifonsheykin.admin.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
@@ -35,71 +35,71 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Lock.LockMainActivity"
+            android:name="com.smartlocks.trifonsheykin.admin.Lock.LockMainActivity"
             android:label="@string/lock_label"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.trifonsheykin.admin.MainActivity" />
+                android:value="com.smartlocks.trifonsheykin.admin.MainActivity" />
         </activity>
         <activity
-            android:name=".Lock.LockEditActivity"
+            android:name="com.smartlocks.trifonsheykin.admin.Lock.LockEditActivity"
             android:label="New lock"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.trifonsheykin.admin.Lock.LockMainActivity" />
+                android:value="com.smartlocks.trifonsheykin.admin.Lock.LockMainActivity" />
         </activity>
         <activity
-            android:name=".Key.KeyMainActivity"
+            android:name="com.smartlocks.trifonsheykin.admin.Key.KeyMainActivity"
             android:label="@string/key_label"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.trifonsheykin.admin.MainActivity" />
+                android:value="com.smartlocks.trifonsheykin.admin.MainActivity" />
         </activity>
         <activity
-            android:name=".Key.KeyEditActivity"
+            android:name="com.smartlocks.trifonsheykin.admin.Key.KeyEditActivity"
             android:label="@string/key_edit_label"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.trifonsheykin.admin.Key.KeyMainActivity" />
+                android:value="com.smartlocks.trifonsheykin.admin.Key.KeyMainActivity" />
         </activity>
         <activity
-            android:name=".User.UserMainActivity"
+            android:name="com.smartlocks.trifonsheykin.admin.User.UserMainActivity"
             android:label="@string/user_label"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.trifonsheykin.admin.MainActivity" />
+                android:value="com.smartlocks.trifonsheykin.admin.MainActivity" />
         </activity>
         <activity
-            android:name=".User.UserEditActivity"
+            android:name="com.smartlocks.trifonsheykin.admin.User.UserEditActivity"
             android:label="@string/user_edit_label"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.trifonsheykin.admin.User.UserMainActivity" />
+                android:value="com.smartlocks.trifonsheykin.admin.User.UserMainActivity" />
         </activity>
         <activity
-            android:name=".Key.KeySelectActivity"
+            android:name="com.smartlocks.trifonsheykin.admin.Key.KeySelectActivity"
             android:label="@string/title_select_key"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.trifonsheykin.admin.Key.KeySelectActivity" />
+                android:value="com.smartlocks.trifonsheykin.admin.Key.KeySelectActivity" />
         </activity>
         <activity
-            android:name=".Lock.LockSelectActivity"
+            android:name="com.smartlocks.trifonsheykin.admin.Lock.LockSelectActivity"
             android:label="@string/title_select_lock"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.trifonsheykin.admin.Lock.LockSelectActivity" />
+                android:value="com.smartlocks.trifonsheykin.admin.Lock.LockSelectActivity" />
         </activity>
         <activity
-            android:name=".TagActivity"
+            android:name="com.smartlocks.trifonsheykin.admin.TagActivity"
             android:label="@string/tag_label"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -110,28 +110,28 @@
 
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.trifonsheykin.admin.MainActivity" />
+                android:value="com.smartlocks.trifonsheykin.admin.MainActivity" />
         </activity>
         <activity
-            android:name=".QrReadActivity"
+            android:name="com.smartlocks.trifonsheykin.admin.QrReadActivity"
             android:label="@string/qr_reader_label"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.trifonsheykin.admin.MainActivity" />
+                android:value="com.smartlocks.trifonsheykin.admin.MainActivity" />
         </activity>
         <activity
-            android:name=".HelpActivity"
+            android:name="com.smartlocks.trifonsheykin.admin.HelpActivity"
             android:label="@string/help_label"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.trifonsheykin.admin.MainActivity" />
+                android:value="com.smartlocks.trifonsheykin.admin.MainActivity" />
         </activity>
 
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.example.trifonsheykin.admin.fileprovider"
+            android:authorities="com.smartlocks.trifonsheykin.admin.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -140,28 +140,28 @@
         </provider>
 
         <activity
-            android:name=".User.UserInfoActivity"
+            android:name="com.smartlocks.trifonsheykin.admin.User.UserInfoActivity"
             android:label="User info"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.trifonsheykin.admin.User.UserMainActivity" />
+                android:value="com.smartlocks.trifonsheykin.admin.User.UserMainActivity" />
         </activity>
         <activity
-            android:name=".Key.KeyInfoActivity"
+            android:name="com.smartlocks.trifonsheykin.admin.Key.KeyInfoActivity"
             android:label="Key info"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.trifonsheykin.admin.Key.KeyMainActivity" />
+                android:value="com.smartlocks.trifonsheykin.admin.Key.KeyMainActivity" />
         </activity>
         <activity
-            android:name=".Lock.LockInfoActivity"
+            android:name="com.smartlocks.trifonsheykin.admin.Lock.LockInfoActivity"
             android:label="Lock info"
             android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.trifonsheykin.admin.Lock.LockMainActivity" />
+                android:value="com.smartlocks.trifonsheykin.admin.Lock.LockMainActivity" />
         </activity>
 
     </application>
