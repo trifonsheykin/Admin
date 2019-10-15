@@ -76,8 +76,8 @@ public class KeyMainActivity extends AppCompatActivity {
                 final long id = (long) viewHolder.itemView.getTag();
                 final long spId = sharedPreferences.getLong("keyRowId", -1);//sharedPreferences.getLong("keyRowId", -1)
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(KeyMainActivity.this);
-                alertDialog.setTitle("Lock delete");
-                alertDialog.setMessage("Do you want to delete this lock?");
+                alertDialog.setTitle("Key delete");
+                alertDialog.setMessage("Do you want to delete this key?");
                 alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int which) {
                         if(id == spId){

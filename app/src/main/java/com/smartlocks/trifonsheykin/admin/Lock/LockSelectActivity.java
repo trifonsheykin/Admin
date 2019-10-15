@@ -45,8 +45,11 @@ public class LockSelectActivity extends AppCompatActivity {
 
         }
 
-        recyclerView = (RecyclerView) findViewById(R.id.lockRecycler);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView = findViewById(R.id.lockRecycler);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setReverseLayout(true);
+        linearLayoutManager.setStackFromEnd(true);
+        recyclerView.setLayoutManager(linearLayoutManager);
 
         // Create a DB helper (this will create the DB if run for the first time)
         DbHelper dbHelperLock = DbHelper.getInstance(this);
