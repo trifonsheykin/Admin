@@ -3,12 +3,14 @@ package com.smartlocks.trifonsheykin.admin.Lock;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -107,7 +109,7 @@ radiobutton:
     private static final int SECRET_KEY_PAGE = 7;
     private static final int CIPIP_PAGE = 8;
     private static final int ADM_KEY_PAGE = 9;
-    private static final int ADM_ID_PAGE = 10;
+    private static final int SUPER_KEY_PAGE = 10;
     private static final int STATION = 1;
     private static final int SOFTAP = 2;
     private EditText etLock1Title;
@@ -117,7 +119,7 @@ radiobutton:
     private RadioGroup rgWiFiSettings;
     private RadioButton rbLockAccessPoint;
     private RadioButton rbLockStation;
-
+    private SharedPreferences sharedPreferences;
     private Button bSync;
     private Button bWiFiSet;
     private Button bSave;
@@ -132,12 +134,14 @@ radiobutton:
     private long rowId;
     private String mApBssidTV;
 
+    private byte[] newSuperKey;
+
     String[] projectionLock = {
             LockDataContract._ID,
             LockDataContract.COLUMN_LOCK1_TITLE,
             LockDataContract.COLUMN_LOCK2_TITLE,
             LockDataContract.COLUMN_SECRET_KEY,
-            LockDataContract.COLUMN_ADM_ID,
+            LockDataContract.COLUMN_SUPER_KEY,
             LockDataContract.COLUMN_ADM_KEY,
             LockDataContract.COLUMN_DOOR1_ID,
             LockDataContract.COLUMN_DOOR2_ID,
@@ -165,7 +169,7 @@ radiobutton:
     private String lock1Title;
     private String lock2Title;
     private byte[] secretKey;
-    private byte[] admId;
+    private byte[] superKey;
     private byte[] admKey;
     private int[] userAes;
     private int[] userData;
@@ -296,7 +300,7 @@ radiobutton:
         lock1Title  = cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_LOCK1_TITLE));
         lock2Title  = cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_LOCK2_TITLE));
         secretKey   = cursor.getBlob(cursor.getColumnIndex(LockDataContract.COLUMN_SECRET_KEY));
-        admId       = cursor.getBlob(cursor.getColumnIndex(LockDataContract.COLUMN_ADM_ID));
+        superKey    = cursor.getBlob(cursor.getColumnIndex(LockDataContract.COLUMN_SUPER_KEY));
         admKey      = cursor.getBlob(cursor.getColumnIndex(LockDataContract.COLUMN_ADM_KEY));
         door1Id     = cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_DOOR1_ID));
         door2Id     = cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_DOOR2_ID));
@@ -312,7 +316,7 @@ radiobutton:
 
         etLock1Title.setText(lock1Title);
         etLock2Title.setText(lock2Title);
-        setTextInfo();
+
 
         if(expiredAes == null){
             needSync = false;
@@ -337,7 +341,7 @@ radiobutton:
         elementsDisableOnStart();
 
 
-
+        setTextInfo();
 
         TextWatcher textWatcher = new TextWatcher() {
             @Override
@@ -487,6 +491,7 @@ radiobutton:
                 finish();
             }
         });
+
     }
 
 
@@ -501,25 +506,31 @@ radiobutton:
     }
 
     private void buttonSaveEnableRequest(){
+        setTextInfo();
         if(((rbLockAccessPoint.isChecked() && cwmode == SOFTAP) || (rbLockStation.isChecked() && cwmode == STATION))
                     && etLock1Title.getText().toString().contentEquals(lock1Title)
                     && etLock2Title.getText().toString().contentEquals(lock2Title)) {
             bSave.setEnabled(false);
-            setTextInfo();
+
         }else{
-            if((rbLockAccessPoint.isChecked() && cwmode != SOFTAP) || (rbLockStation.isChecked() && cwmode != STATION)) tvInfo.append("\n\nBefore switching make sure you changed lock settings with button double click before saving");
+           // if((rbLockAccessPoint.isChecked() && cwmode != SOFTAP) || (rbLockStation.isChecked() && cwmode != STATION))
+            tvInfo.append("\n\nBefore switching make sure you changed lock settings with button double click before saving");
             bSave.setEnabled(true);
         }
+
+
 
     }
     private void setTextInfo(){
         tvInfo.setText(lock1Title + " ID: " + door1Id +
-                 "\n" + lock2Title +" ID: " + door2Id
-                   + "\nIP address: " + ipAddress);
+                "\n" + lock2Title +" ID: " + door2Id
+                + "\nIP address: ");
 
-        if(cwmode == SOFTAP){
+        if(rbLockAccessPoint.isChecked()){
+            tvInfo.append("192.168.4.1");
             tvInfo.append("\nLock is in access point mode\nLock's SSID: " + softApSsid);
-        }else if(cwmode == STATION) {
+        }else if(rbLockStation.isChecked()) {
+            tvInfo.append(ipAddress);
             tvInfo.append("\nLock is connected to Wi-Fi\nWi-Fi SSID: " + stationSsid);
         }
 
@@ -1192,6 +1203,7 @@ radiobutton:
         byte[] rtc = getRtc();//{0x18, 0x10, 0x20, 0x21, 0x28, 0x30};
         System.arraycopy(rtc, 0, data16, mem.length() + 1, rtc.length);//S
         array.add(data16.clone());
+
 
         if(accessPointMode == true){
             Arrays.fill(data48, (byte) 0);

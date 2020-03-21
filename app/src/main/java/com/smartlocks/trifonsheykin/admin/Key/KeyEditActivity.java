@@ -29,7 +29,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.security.SecureRandom;
-import java.util.Arrays;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -40,6 +39,7 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
 
     private Button bChooseLock;
     private TextView tvLockStatus;
+    private EditText etEditId;
     private Button bReadKey;
     private Button bPlayKey;
     private Button bSaveKey;
@@ -64,7 +64,7 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
             LockDataContract.COLUMN_LOCK1_TITLE,
             LockDataContract.COLUMN_LOCK2_TITLE,
             LockDataContract.COLUMN_SECRET_KEY,
-            LockDataContract.COLUMN_ADM_ID,
+            LockDataContract.COLUMN_SUPER_KEY,
             LockDataContract.COLUMN_ADM_KEY,
             LockDataContract.COLUMN_DOOR1_ID,
             LockDataContract.COLUMN_DOOR2_ID,
@@ -101,6 +101,7 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
         radioGroup   = findViewById(R.id.rg_lock_titles);
         rbDoor1Title = findViewById(R.id.rb_lock1_title);
         rbDoor2Title = findViewById(R.id.rb_lock2_title);
+        etEditId = findViewById(R.id.et_editId);
 
         disableAllElements();
 
@@ -168,6 +169,7 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
         rbDoor1Title.setEnabled(false);
         rbDoor2Title.setEnabled(false);
         tvLockStatus.setEnabled(false);
+        etEditId.setEnabled(false);
         bChooseLock.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_https_disabled_24dp, 0,0,0);
         bReadKey.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_file_download_disabled_24dp, 0,0,0);
         bPlayKey.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_play_arrow_disabled_24dp, 0,0,0);
@@ -218,31 +220,40 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
                 cursor.moveToPosition(0);
                 bundle.putInt("BUTTON", READ_KEY);
                 bundle.putByteArray("ADM_KEY", cursor.getBlob(cursor.getColumnIndex(LockDataContract.COLUMN_ADM_KEY)));
-                bundle.putByteArray("ADM_ID", cursor.getBlob(cursor.getColumnIndex(LockDataContract.COLUMN_ADM_ID)));
+                bundle.putByteArray("SUPER_KEY", cursor.getBlob(cursor.getColumnIndex(LockDataContract.COLUMN_SUPER_KEY)));
                 bundle.putInt("CWMODE", cursor.getInt(cursor.getColumnIndex(LockDataContract.COLUMN_CWMODE)));
                 bundle.putString("CIPSTA_IP", cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_CIPSTA_IP)));
                 keyNetworkTask.execute(bundle);
                 break;
 
             case R.id.b_play_key:
-                keyNetworkTask = new KeyEditActivity.KeyNetworkTask(); //New instance of NetworkTask
-                bundle = new Bundle();
-                cursor = mDb.query(
-                        LockDataContract.TABLE_NAME_LOCK_DATA,
-                        projection,
-                        LockDataContract._ID + "= ?",
-                        new String[] {String.valueOf(rowId)},
-                        null,
-                        null,
-                        LockDataContract.COLUMN_TIMESTAMP
-                );
-                cursor.moveToPosition(0);
-                bundle.putInt("BUTTON", PLAY_KEY);
-                bundle.putByteArray("ADM_KEY", cursor.getBlob(cursor.getColumnIndex(LockDataContract.COLUMN_ADM_KEY)));
-                bundle.putByteArray("ADM_ID", cursor.getBlob(cursor.getColumnIndex(LockDataContract.COLUMN_ADM_ID)));
-                bundle.putInt("CWMODE", cursor.getInt(cursor.getColumnIndex(LockDataContract.COLUMN_CWMODE)));
-                bundle.putString("CIPSTA_IP", cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_CIPSTA_IP)));
-                keyNetworkTask.execute(bundle);
+                if(etEditId.getText().toString().matches("[0-9A-F]{16}") || etEditId.getText().toString().length() == 0){
+                    if(etEditId.getText().toString().length() != 0)
+                        wiegandRealPass = hexStringToByteArray(etEditId.getText().toString());
+                    keyNetworkTask = new KeyEditActivity.KeyNetworkTask(); //New instance of NetworkTask
+                    bundle = new Bundle();
+                    cursor = mDb.query(
+                            LockDataContract.TABLE_NAME_LOCK_DATA,
+                            projection,
+                            LockDataContract._ID + "= ?",
+                            new String[] {String.valueOf(rowId)},
+                            null,
+                            null,
+                            LockDataContract.COLUMN_TIMESTAMP
+                    );
+                    cursor.moveToPosition(0);
+                    bundle.putInt("BUTTON", PLAY_KEY);
+                    bundle.putByteArray("ADM_KEY", cursor.getBlob(cursor.getColumnIndex(LockDataContract.COLUMN_ADM_KEY)));
+                    bundle.putByteArray("SUPER_KEY", cursor.getBlob(cursor.getColumnIndex(LockDataContract.COLUMN_SUPER_KEY)));
+                    bundle.putInt("CWMODE", cursor.getInt(cursor.getColumnIndex(LockDataContract.COLUMN_CWMODE)));
+                    bundle.putString("CIPSTA_IP", cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_CIPSTA_IP)));
+                    keyNetworkTask.execute(bundle);
+                }else{
+                    tvLockStatus.setText("ID should contain 16 symbols (0-9, A-F)");
+
+                }
+
+
 
                 break;
 
@@ -333,6 +344,7 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
                 rbDoor1Title.setText(lock1Title);
                 rbDoor2Title.setText(lock2Title);
                 tvLockStatus.setEnabled(true);
+                etEditId.setEnabled(true);
                 bChooseLock.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_https_colored_24dp, 0,0,0);
                 /**
                  * we need in bundle:
@@ -347,7 +359,7 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
                 bundle.putInt("BUTTON", CHOOSE_LOCK);
                 //TODO Add channel selection into bundle
                 bundle.putByteArray("ADM_KEY", cursor.getBlob(cursor.getColumnIndex(LockDataContract.COLUMN_ADM_KEY)));
-                bundle.putByteArray("ADM_ID", cursor.getBlob(cursor.getColumnIndex(LockDataContract.COLUMN_ADM_ID)));
+                bundle.putByteArray("SUPER_KEY", cursor.getBlob(cursor.getColumnIndex(LockDataContract.COLUMN_SUPER_KEY)));
                 bundle.putInt("CWMODE", cursor.getInt(cursor.getColumnIndex(LockDataContract.COLUMN_CWMODE)));
                 bundle.putString("CWJAP_SSID", cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_CWJAP_SSID)));
                 bundle.putString("CIPSTA_IP", cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_CIPSTA_IP)));
@@ -376,7 +388,7 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
 
         byte[] admKey = new byte[32];
         byte[] nextKey = new byte[32];
-        byte[] admId =  new byte [4];//
+        byte[] superKey =  new byte [32];//
         private InputStream nis; //Network Input Stream
         private OutputStream nos; //Network Output Stream
         int byteCnt;
@@ -400,7 +412,7 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
             else if(cwmode == STATION) ipaddr = bundle.getString("CIPSTA_IP");
             ssid = bundle.getString("CWJAP_SSID");
             admKey = bundle.getByteArray("ADM_KEY").clone();
-            admId = bundle.getByteArray("ADM_ID").clone();
+            superKey = bundle.getByteArray("SUPER_KEY").clone();
 
         }
 
@@ -427,18 +439,18 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
                     case READ_KEY:
                         plaintext[0] = 10;//MESSAGE TYPE: PASS_ACTION 10
                         plaintext[1] = XORcalc(temp);//XOR
-                        System.arraycopy(admId, 0, plaintext, 2, admId.length);//userID[USER_ID_SIZE];//4
+                        System.arraycopy(superKey, 0, plaintext, 2, 4);//userID[USER_ID_SIZE];//4
                         plaintext[6] = 0;// p1s0; 0 - save pass
                         plaintext[7] = channel;//
                         break;
                     case PLAY_KEY:
                         plaintext[0] = 10;//MESSAGE TYPE: PASS_ACTION 10
                         plaintext[1] = XORcalc(temp);//XOR
-                        System.arraycopy(admId, 0, plaintext, 2, admId.length);//userID[USER_ID_SIZE];//4
+                        System.arraycopy(superKey, 0, plaintext, 2, 4);//userID[USER_ID_SIZE];//4
                         plaintext[6] = 1;// p1s0; 1 - play pass
                         plaintext[7] = channel;//
                         System.arraycopy(wiegandRealPass, 0, plaintext, 8, wiegandRealPass.length);//userID[USER_ID_SIZE];//4
-                        wiegandRealPass[3]^=0x03;
+                        //wiegandRealPass[3]^=0x03;
                         break;
                 }
                 XORcheck = XORcalc(plaintext);
@@ -555,7 +567,8 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
             tvLockStatus.setText(strings[0]);
             if(strings[0].contentEquals("OK")){
                 keyHasBeenRead = true;
-                tvLockStatus.append("\n" + Arrays.toString(wiegandRealPass));
+                etEditId.setText(bytesToHex(wiegandRealPass));
+                //tvLockStatus.append("\n" + Arrays.toString(wiegandRealPass));
                 saveButtonEnableRequest();
             }if(strings[0].contentEquals("PING OK")){
                 enableKeyElements();
@@ -571,6 +584,28 @@ public class KeyEditActivity extends AppCompatActivity implements View.OnClickLi
         }
 
 
+    }
+
+    private String bytesToHex(byte[] bytes) {
+
+        final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+        char[] hexChars = new char[bytes.length * 2];
+        for (int j = 0, i = bytes.length - 1; j < bytes.length; j++, i--) {
+            int v = bytes[j] & 0xFF;
+            hexChars[i * 2] = HEX_ARRAY[v >>> 4];
+            hexChars[i * 2 + 1] = HEX_ARRAY[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
+
+    public static byte[] hexStringToByteArray(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0, j = data.length-1; i < len; i += 2, j--) {
+            data[j] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                    + Character.digit(s.charAt(i+1), 16));
+        }
+        return data;
     }
 
 

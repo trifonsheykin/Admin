@@ -41,7 +41,7 @@ public final class LockDataContract implements BaseColumns {
         public static final String COLUMN_LOCK1_TITLE = "lock1Title";//
         public static final String COLUMN_LOCK2_TITLE = "lock2Title";//
         public static final String COLUMN_SECRET_KEY = "secretKey";//
-        public static final String COLUMN_ADM_ID = "admId";//
+        public static final String COLUMN_SUPER_KEY = "superKey";//
         public static final String COLUMN_ADM_KEY = "admKey";//
         public static final String COLUMN_DOOR1_ID = "door1Id";//
         public static final String COLUMN_DOOR2_ID = "door2Id";//

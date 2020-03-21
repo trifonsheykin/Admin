@@ -1,20 +1,18 @@
 package com.smartlocks.trifonsheykin.admin.Lock;
 
 
-import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -77,16 +75,18 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
     private static final int SECRET_KEY_PAGE = 7;
     private static final int CIPIP_PAGE = 8;
     private static final int ADM_KEY_PAGE = 9;
-    private static final int ADM_ID_PAGE = 10;
+    private static final int SUPER_KEY_PAGE = 10;
 
     private static final int STATION = 1;
     private static final int SOFTAP = 2;
 
     private static final String ESP_AP_STATIC_IP = "192.168.4.1";
-
+    private SharedPreferences sharedPreferences;
     private IEsptouchTask mEsptouchTask;
     private static final Object mLock = new Object();
     private byte[] syncKey =  new byte[32];
+
+    private byte[] superKey;
 
 
     private ProgressBar pbStatus;
@@ -257,6 +257,9 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
         DbHelper dbHelperLock = DbHelper.getInstance(this);
         mDb = dbHelperLock.getWritableDatabase();
 
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String superKeyString = sharedPreferences.getString("superKey", null);
+        superKey = Base64.decode(superKeyString, Base64.NO_WRAP);
 
         IntentFilter filter = new IntentFilter(WifiManager.NETWORK_STATE_CHANGED_ACTION);
         registerReceiver(mReceiver, filter);
@@ -736,14 +739,14 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
                     cvLock.put(LockDataContract.COLUMN_SECRET_KEY, dataToSave);
                 }else if(memoryPage == CIPIP_PAGE){
                     String ipString = new String(dataToSave).split("\0")[0];
-                    if(rbAccessPoint.isChecked())ipString = ESP_AP_STATIC_IP;
+                    //if(rbAccessPoint.isChecked())ipString = ESP_AP_STATIC_IP;
                     cvLock.put(LockDataContract.COLUMN_CIPSTA_IP, ipString);
                 }else if(memoryPage == ADM_KEY_PAGE){
                     cvLock.put(LockDataContract.COLUMN_ADM_KEY, dataToSave);
-                }else if(memoryPage == ADM_ID_PAGE){
-                    byte[] aId = new byte[4];
-                    System.arraycopy(dataToSave, 0, aId, 0, aId.length);//S
-                    cvLock.put(LockDataContract.COLUMN_ADM_ID, aId);
+                }else if(memoryPage == SUPER_KEY_PAGE){
+                    //byte[] superKeyTemp = new byte[32];
+                    //System.arraycopy(dataToSave, 0, superKeyTemp, 0, superKeyTemp.length);//S
+                    cvLock.put(LockDataContract.COLUMN_SUPER_KEY, dataToSave);
                 }else if(11 <= memoryPage && memoryPage <= LAST_USER_BOUND){
                     if(memoryPage % 2 == 1){//This is USER AES KEY
                         ContentValues cv = new ContentValues();
@@ -767,6 +770,13 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
             progressBarEnable(false);
             Toast.makeText(LockEditActivity.this, result, Toast.LENGTH_LONG).show();
             //door1IdString
+            try {
+                nos.close();
+                nis.close();
+                nsocket.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             if(result.equals("Synchronization complete")) {
                 mDb.delete(LockDataContract.TABLE_NAME_LOCK_DATA, LockDataContract.COLUMN_DOOR1_ID + "= ?", new String[]{door1IdString});
                 mDb.delete(LockDataContract.TABLE_NAME_AES_DATA, LockDataContract.COLUMN_AES_DOOR1_ID + "= ?", new String[]{door1IdString});
@@ -782,13 +792,7 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
 
             }
            // screenComponentsDisableOnStart(true);
-            try {
-                nos.close();
-                nis.close();
-                nsocket.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+
 
 
         }
@@ -1028,13 +1032,13 @@ public class LockEditActivity extends AppCompatActivity implements View.OnClickL
                 array.add(data48.clone());
             }
 
-            // -------SET ADM ID 10
+            // -------SET SUPER KEY 10
             Arrays.fill(data48, (byte)0);
             mem = new String("set memory 10");
             System.arraycopy(mem.getBytes(), 0, data48, 0, mem.length());//S
-            byte[] newAdmId = new byte[4];
-            random.nextBytes(newAdmId);//random generating
-            System.arraycopy(newAdmId, 0, data48, 16, newAdmId.length);//S
+//            byte[] superKey = new byte[32];//also we use this field as admId -4 bytes- in passActionReply on MCU
+//            random.nextBytes(superKey);//random generating
+            System.arraycopy(superKey, 0, data48, 16, superKey.length);//S
             array.add(data48.clone());
 
             // ---- SET USER_AES 11 - 19: [11, 13, 15, 17, 19]

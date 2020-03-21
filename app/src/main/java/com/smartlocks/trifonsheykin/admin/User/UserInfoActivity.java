@@ -75,24 +75,31 @@ public class UserInfoActivity extends AppCompatActivity {
         long lockRowId = cursor.getLong(cursor.getColumnIndex(LockDataContract.COLUMN_LOCK_ROW_ID));
         long aesRowId = cursor.getLong(cursor.getColumnIndex(LockDataContract.COLUMN_AES_KEY_ROW_ID));
 
-        tvUserInfo.setText("User name: "         + userName +
-                         "\nAccess time for: "  + userLocks +
-                         "\n" + decodeAccessCode(accessCode) +
-                         "\nKey title: "         + keyTitle +
-                         "\nCode created: " + date +
-                         "\nLock: " + lockRowId + ", AES: " + aesRowId);
+        if(accessCode != null){
+            tvUserInfo.setText("User name: "         + userName +
+                    "\nAccess time for: "  + userLocks +
+                    "\n" + decodeAccessCode(accessCode) +
+                    "\nKey title: "         + keyTitle +
+                    "\nCode created: " + date +
+                    "\nLock: " + lockRowId + ", AES: " + aesRowId);
 
-        String encoded = Base64.encodeToString(accessCode, Base64.NO_WRAP);
-        MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
-        try{
-            BitMatrix bitMatrix = multiFormatWriter.encode(encoded, BarcodeFormat.QR_CODE, 500, 500);
-            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-            Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
-            ivQrShow.setImageBitmap(bitmap);
+            String encoded = Base64.encodeToString(accessCode, Base64.NO_WRAP);
+            MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
+            try{
+                BitMatrix bitMatrix = multiFormatWriter.encode(encoded, BarcodeFormat.QR_CODE, 500, 500);
+                BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
+                ivQrShow.setImageBitmap(bitmap);
 
-        }catch (WriterException e){
-            e.printStackTrace();
+            }catch (WriterException e){
+                e.printStackTrace();
+            }
+        }else{
+            tvUserInfo.setText("User info error");
+
         }
+
+
 
 
 
@@ -116,24 +123,41 @@ public class UserInfoActivity extends AppCompatActivity {
 
     private String decodeAccessCode(byte[] ac){
         byte[] ipAddr = new byte[4];
-        byte[] door1StartTime = new byte[5];
-        byte[] door1StopTime = new byte[5];
-        byte[] door2StartTime = new byte[5];
-        byte[] door2StopTime = new byte[5];
-
         String ipAddress;
-        System.arraycopy(ac, 48, ipAddr, 0, 4);
-        ipAddress = ipByteToStr(ipAddr);
+        String out;
+        if(ac.length == 78){
 
-        System.arraycopy(ac, 57, door1StartTime, 0, 5);
-        System.arraycopy(ac, 62, door1StopTime, 0, 5);
-        System.arraycopy(ac, 67, door2StartTime, 0, 5);
-        System.arraycopy(ac, 72, door2StopTime, 0, 5);
+            byte[] door1StartTime = new byte[5];
+            byte[] door1StopTime = new byte[5];
+            byte[] door2StartTime = new byte[5];
+            byte[] door2StopTime = new byte[5];
 
-        return new String("Door 1 from: " + accessTimeByteToStr(door1StartTime) +
-                "\n                  to: " + accessTimeByteToStr(door1StopTime) +
-                "\nDoor 2 from: " + accessTimeByteToStr(door2StartTime) +
-                "\n                  to: " + accessTimeByteToStr(door2StopTime));
+            System.arraycopy(ac, 48, ipAddr, 0, 4);
+            ipAddress = ipByteToStr(ipAddr);
+
+            System.arraycopy(ac, 57, door1StartTime, 0, 5);
+            System.arraycopy(ac, 62, door1StopTime, 0, 5);
+            System.arraycopy(ac, 67, door2StartTime, 0, 5);
+            System.arraycopy(ac, 72, door2StopTime, 0, 5);
+
+            out = "Door 1 from: " + accessTimeByteToStr(door1StartTime) +
+                    "\n                  to: " + accessTimeByteToStr(door1StopTime) +
+                    "\nDoor 2 from: " + accessTimeByteToStr(door2StartTime) +
+                    "\n                  to: " + accessTimeByteToStr(door2StopTime) +
+                    "\nIP address: " + ipAddress;
+
+        }else{
+            byte[] doorStopTime = new byte[5];
+            System.arraycopy(ac, 33, doorStopTime, 0, 5);
+            System.arraycopy(ac, 38, ipAddr, 0, 4);
+            ipAddress = ipByteToStr(ipAddr);
+            out = "Expiration date: " + accessTimeByteToStr(doorStopTime) +
+                    "\nIP address: " + ipAddress;
+
+
+        }
+        return out;
+
     }
     private String accessTimeByteToStr(byte[] date){
         String hour, minute, day, month, year;

@@ -66,7 +66,7 @@ public class TagActivity extends AppCompatActivity {
             LockDataContract.COLUMN_LOCK1_TITLE,
             LockDataContract.COLUMN_LOCK2_TITLE,
             LockDataContract.COLUMN_SECRET_KEY,
-            LockDataContract.COLUMN_ADM_ID,
+            LockDataContract.COLUMN_SUPER_KEY,
             LockDataContract.COLUMN_ADM_KEY,
             LockDataContract.COLUMN_DOOR1_ID,
             LockDataContract.COLUMN_DOOR2_ID,

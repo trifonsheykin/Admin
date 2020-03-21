@@ -81,7 +81,7 @@ public class DbHelper extends SQLiteOpenHelper {
                 + LockDataContract.COLUMN_LOCK1_TITLE + " TEXT NOT NULL, "
                 + LockDataContract.COLUMN_LOCK2_TITLE + " TEXT NOT NULL, "
                 + LockDataContract.COLUMN_SECRET_KEY + " BLOB, "
-                + LockDataContract.COLUMN_ADM_ID + " BLOB, "
+                + LockDataContract.COLUMN_SUPER_KEY + " BLOB, "
                 + LockDataContract.COLUMN_ADM_KEY + " BLOB, "
                 + LockDataContract.COLUMN_DOOR1_ID + " TEXT, "
                 + LockDataContract.COLUMN_DOOR2_ID  + " TEXT, "

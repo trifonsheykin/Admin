@@ -131,45 +131,54 @@ public class UserMainActivity extends AppCompatActivity {
 
         byte[] accessCode = newcursor.getBlob(newcursor.getColumnIndex(LockDataContract.COLUMN_USER_ACCESS_CODE));
         long lockId = newcursor.getLong(newcursor.getColumnIndex(LockDataContract.COLUMN_LOCK_ROW_ID));
-        byte userTag = accessCode[56];
+        byte userTag;
 
-        Cursor cursorLock = mDb.query(
-                LockDataContract.TABLE_NAME_LOCK_DATA,
-                projectionLock,
-                LockDataContract._ID + "= ?",
-                new String[] {String.valueOf(lockId)},
-                null,
-                null,
-                LockDataContract.COLUMN_TIMESTAMP
-        );
-
-        if(cursorLock.getCount() != 0){
-            cursorLock.moveToPosition(0);
-            byte[] expiredAes  = cursorLock.getBlob(cursorLock.getColumnIndex(LockDataContract.COLUMN_EXPIRED_AES_KEYS_PAGES));
-            ContentValues cv = new ContentValues();
-            if(expiredAes == null){
-                byte[] newExpiredAes = {userTag};
-                cv.put(LockDataContract.COLUMN_EXPIRED_AES_KEYS_PAGES, newExpiredAes);
+        if(accessCode != null){
+            if(accessCode.length == 78){
+                userTag = accessCode[56];
             }else{
-                boolean byteFound = false;
-                for(byte b: expiredAes){
-                    if(b == userTag) byteFound = true;
-                }
-                if(byteFound){
-                    cv.put(LockDataContract.COLUMN_EXPIRED_AES_KEYS_PAGES, expiredAes);
+                userTag = accessCode[32];
+            }
+
+            Cursor cursorLock = mDb.query(
+                    LockDataContract.TABLE_NAME_LOCK_DATA,
+                    projectionLock,
+                    LockDataContract._ID + "= ?",
+                    new String[] {String.valueOf(lockId)},
+                    null,
+                    null,
+                    LockDataContract.COLUMN_TIMESTAMP
+            );
+
+            if(cursorLock.getCount() != 0){
+                cursorLock.moveToPosition(0);
+                byte[] expiredAes  = cursorLock.getBlob(cursorLock.getColumnIndex(LockDataContract.COLUMN_EXPIRED_AES_KEYS_PAGES));
+                ContentValues cv = new ContentValues();
+                if(expiredAes == null){
+                    byte[] newExpiredAes = {userTag};
+                    cv.put(LockDataContract.COLUMN_EXPIRED_AES_KEYS_PAGES, newExpiredAes);
                 }else{
-                    byte[] newExpAes = new byte[expiredAes.length+1];
-                    System.arraycopy(expiredAes, 0, newExpAes, 0, expiredAes.length);
-                    newExpAes[expiredAes.length] = userTag;
-                    cv.put(LockDataContract.COLUMN_EXPIRED_AES_KEYS_PAGES, newExpAes);
+                    boolean byteFound = false;
+                    for(byte b: expiredAes){
+                        if(b == userTag) byteFound = true;
+                    }
+                    if(byteFound){
+                        cv.put(LockDataContract.COLUMN_EXPIRED_AES_KEYS_PAGES, expiredAes);
+                    }else{
+                        byte[] newExpAes = new byte[expiredAes.length+1];
+                        System.arraycopy(expiredAes, 0, newExpAes, 0, expiredAes.length);
+                        newExpAes[expiredAes.length] = userTag;
+                        cv.put(LockDataContract.COLUMN_EXPIRED_AES_KEYS_PAGES, newExpAes);
+                    }
+
                 }
+                mDb.update(LockDataContract.TABLE_NAME_LOCK_DATA, cv,
+                        LockDataContract._ID + "= ?", new String[] {String.valueOf(lockId)});
+                cursorLock.close();
 
             }
-            mDb.update(LockDataContract.TABLE_NAME_LOCK_DATA, cv,
-                    LockDataContract._ID + "= ?", new String[] {String.valueOf(lockId)});
-            cursorLock.close();
-
         }
+
         newcursor.close();
 
     }

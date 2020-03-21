@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.util.Base64;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -31,6 +32,7 @@ import com.smartlocks.trifonsheykin.admin.User.UserEditActivity;
 import com.smartlocks.trifonsheykin.admin.User.UserInfoActivity;
 import com.smartlocks.trifonsheykin.admin.User.UserMainActivity;
 
+import java.security.SecureRandom;
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity
@@ -51,6 +53,7 @@ public class MainActivity extends AppCompatActivity
     private Button bDefaultKey;
     private CalendarView calendarView;
 
+    private String superKey;
 
     private SQLiteDatabase mDb;
     private Cursor cursor;
@@ -72,6 +75,7 @@ public class MainActivity extends AppCompatActivity
 
     private byte[] door1StopTime = new byte[5];
     private byte[] door2StopTime = new byte[5];
+    private byte[] doorStopTime = new byte[5];
    // private TextView tvMainStatus;
 
 
@@ -139,6 +143,24 @@ public class MainActivity extends AppCompatActivity
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         spEditor = sharedPreferences.edit();
+
+        superKey = sharedPreferences.getString("superKey", null);
+        if(superKey == null){
+            SecureRandom random = new SecureRandom();
+            byte[] newSuperKey = new byte[32];
+            random.nextBytes(newSuperKey);//random generating
+            String sk = Base64.encodeToString(newSuperKey, Base64.NO_WRAP);
+            spEditor.putString("superKey", sk);
+            spEditor.commit();
+
+
+        }
+//        if(qrScanner){
+//            Intent intent = new Intent(MainActivity.this, QrReadActivity.class);
+//            startActivityForResult(intent, 0);
+//        }
+
+
 //        qrScanner = sharedPreferences.getBoolean("qrScanner", false);
 //        if(qrScanner){
 //            Intent intent = new Intent(MainActivity.this, QrReadActivity.class);
@@ -167,17 +189,30 @@ public class MainActivity extends AppCompatActivity
             do{
                 byte[] accessCode = cursor.getBlob(cursor.getColumnIndex(LockDataContract.COLUMN_USER_ACCESS_CODE));
                 long id = cursor.getInt(cursor.getColumnIndex(LockDataContract._ID));
+                if(accessCode != null){
+                    if(accessCode.length == 78) {
+                        System.arraycopy(accessCode, 62, door1StopTime, 0, 5);
+                        System.arraycopy(accessCode, 72, door2StopTime, 0, 5);
 
-                System.arraycopy(accessCode, 62, door1StopTime, 0, 5);
-                System.arraycopy(accessCode, 72, door2StopTime, 0, 5);
-
-                if(accessTimeExpired(door1StopTime) && accessTimeExpired(door2StopTime)){
-                    ContentValues cv = new ContentValues();
-                    cv.put(LockDataContract.COLUMN_USER_EXPIRED, 1);
-                    mDb.update(LockDataContract.TABLE_NAME_USER_DATA, cv,
-                            LockDataContract._ID + "= ?", new String[] {String.valueOf(id)});
-                    expiredUsers++;
+                        if (accessTimeExpired(door1StopTime) && accessTimeExpired(door2StopTime)) {
+                            ContentValues cv = new ContentValues();
+                            cv.put(LockDataContract.COLUMN_USER_EXPIRED, 1);
+                            mDb.update(LockDataContract.TABLE_NAME_USER_DATA, cv,
+                                    LockDataContract._ID + "= ?", new String[]{String.valueOf(id)});
+                            expiredUsers++;
+                        }
+                    }else if((accessCode.length - 47) % 8 == 0){
+                        System.arraycopy(accessCode, 33, doorStopTime, 0, 5);
+                        if (accessTimeExpired(doorStopTime)) {
+                            ContentValues cv = new ContentValues();
+                            cv.put(LockDataContract.COLUMN_USER_EXPIRED, 1);
+                            mDb.update(LockDataContract.TABLE_NAME_USER_DATA, cv,
+                                    LockDataContract._ID + "= ?", new String[]{String.valueOf(id)});
+                            expiredUsers++;
+                        }
+                    }
                 }
+
             }while(cursor.moveToNext());
             if(expiredUsers != 0) Toast.makeText(getApplicationContext(), "Expired users: " + expiredUsers, Toast.LENGTH_SHORT).show();;
         }

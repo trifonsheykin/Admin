@@ -19,6 +19,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -28,6 +29,7 @@ import com.smartlocks.trifonsheykin.admin.Lock.LockSelectActivity;
 import com.smartlocks.trifonsheykin.admin.LockDataContract;
 import com.smartlocks.trifonsheykin.admin.R;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Calendar;
 
 import android.util.Base64;
@@ -41,6 +43,7 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
 
     private EditText etUserName;
     private TextView tvSelectedKey;
+    private TextView tvMultiLockInfo;
     private Button bSelectLock;
     private Button bSelectKey;
     private CheckBox cbDoor1;
@@ -50,6 +53,7 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
     private Button bStartTimeDoor2;
     private Button bStopTimeDoor2;
     private Button bSaveData;
+    private Switch swMultiLocks;
 
     private long lockRowId;
     private long keyRowId;
@@ -62,7 +66,7 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
     private boolean lockSelected;
     private boolean keySelected;
     private String curTime;
-
+    private static final String ESP_AP_STATIC_IP = "192.168.4.1";
     private boolean door1StopTimeSelected;
     private boolean door2StopTimeSelected;
 
@@ -76,12 +80,15 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
     private static final int DOOR2_START_TIME_SELECT = 3;
     private static final int DOOR2_STOP_TIME_SELECT = 4;
 
+    private static final int GENERAL_CODE_TYPE = 0;
+    private static final int MULTILOCK_CODE_TYPE = 1;
+
     String[] projectionLock = {
             LockDataContract._ID,
             LockDataContract.COLUMN_LOCK1_TITLE,
             LockDataContract.COLUMN_LOCK2_TITLE,
             LockDataContract.COLUMN_SECRET_KEY,
-            LockDataContract.COLUMN_ADM_ID,
+            LockDataContract.COLUMN_SUPER_KEY,
             LockDataContract.COLUMN_ADM_KEY,
             LockDataContract.COLUMN_DOOR1_ID,
             LockDataContract.COLUMN_DOOR2_ID,
@@ -124,6 +131,7 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
         setContentView(R.layout.activity_user_edit);
         etUserName = findViewById(R.id.et_user_name);
         tvSelectedKey = findViewById(R.id.tv_selected_key);
+        tvMultiLockInfo = findViewById(R.id.tv_ml_info);
         bSelectLock = findViewById(R.id.b_select_lock);
         bSelectKey = findViewById(R.id.b_select_key);
         bSaveData = findViewById(R.id.b_save);
@@ -133,7 +141,32 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
         bStopTimeDoor1 = findViewById(R.id.b_stop_door1);
         bStartTimeDoor2 = findViewById(R.id.b_start_door2);
         bStopTimeDoor2 = findViewById(R.id.b_stop_door2);
+        swMultiLocks = findViewById(R.id.sw_multiple_locks);
+
+        swMultiLocks.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    bStartTimeDoor2.setVisibility(View.INVISIBLE);
+                    bStopTimeDoor2.setVisibility(View.INVISIBLE);
+                    cbDoor1.setVisibility(View.INVISIBLE);
+                    cbDoor2.setVisibility(View.INVISIBLE);
+                    tvMultiLockInfo.setVisibility(View.VISIBLE);
+                    bStartTimeDoor1.setClickable(false);
+                }else{
+                    bStartTimeDoor2.setVisibility(View.VISIBLE);
+                    bStopTimeDoor2.setVisibility(View.VISIBLE);
+                    cbDoor1.setVisibility(View.VISIBLE);
+                    cbDoor2.setVisibility(View.VISIBLE);
+                    tvMultiLockInfo.setVisibility(View.INVISIBLE);
+                    bStartTimeDoor1.setClickable(true);
+                }
+            }
+        });
+
         bSaveData.setEnabled(false);
+        tvMultiLockInfo.setText("- Start time is not clickable\n- Select just expiration date of access code\n- User will get access to all registered locks\n- Access time of user wouldn't be controlled by locks");
+        tvMultiLockInfo.setVisibility(View.INVISIBLE);
 
 
         DbHelper dbHelperLock = DbHelper.getInstance(this);
@@ -297,7 +330,12 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
             public void onClick(View v) {
                 ContentValues cv = new ContentValues();
 
-                byte[] accessCode = generateAccessCode();
+                byte[] accessCode;
+                if(swMultiLocks.isChecked()){
+                    accessCode = generateAccessCode(MULTILOCK_CODE_TYPE);
+                }else{
+                    accessCode = generateAccessCode(GENERAL_CODE_TYPE);
+                }
                 cv.put(LockDataContract.COLUMN_USER_ACCESS_CODE, accessCode);
                 cv.put(LockDataContract.COLUMN_USER_NAME, etUserName.getText().toString());
                 String userLocks = new String();
@@ -421,6 +459,7 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
         bSelectLock.setEnabled(false);
         cbDoor1.setEnabled(false);
         cbDoor2.setEnabled(false);
+        swMultiLocks.setEnabled(false);
         bStartTimeDoor1.setEnabled(false);
         bStopTimeDoor1.setEnabled(false);
         bStartTimeDoor2.setEnabled(false);
@@ -491,6 +530,7 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
         if(keySelected && lockSelected){
             cbDoor1.setEnabled(true);
             cbDoor2.setEnabled(true);
+            swMultiLocks.setEnabled(true);
 //            bStartTimeDoor1.setEnabled(true);
 //            bStopTimeDoor1.setEnabled(true);
 //            bStartTimeDoor2.setEnabled(true);
@@ -503,6 +543,7 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
         }else{
             cbDoor1.setEnabled(false);
             cbDoor2.setEnabled(false);
+            swMultiLocks.setEnabled(false);
 //            bStartTimeDoor1.setEnabled(false);
 //            bStopTimeDoor1.setEnabled(false);
 //            bStartTimeDoor2.setEnabled(false);
@@ -527,6 +568,7 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
         bSelectLock.setEnabled(true);
         cbDoor1.setChecked(true);
         cbDoor2.setChecked(true);
+        swMultiLocks.setEnabled(true);
 
     }
 
@@ -571,7 +613,7 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
         return false;
     }
 
-    private byte[] generateAccessCode(){
+    private byte[] generateAccessCode(int codeType){
         byte[] secretWord;
         byte[] plainWord = new byte[32];
         byte[] secretKey;
@@ -583,13 +625,12 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
         byte[] door2StartTime;
         byte[] door2StopTime;
         byte[] doorAccessTime = new byte[20];
-
+        byte[] tempIV = new byte[16];
         byte[] userAes;
         byte[] ipAddr;
         byte[] doorId;
         byte userTag;
-
-        byte[] accessCode = new byte[78];
+        byte[] accessCode = null;
 
         aesCursor = mDb.query(
                 LockDataContract.TABLE_NAME_AES_DATA,
@@ -613,77 +654,153 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
             }
 
         }else{
-            return null;
-        }
-
-        if(!cbDoor1.isChecked()){
-            d1stopHour   = d1startHour;
-            d1stopMinute = d1startMinute;
-            d1stopDay    = d1startDay;
-            d1stopMonth  = d1startMonth;
-            d1stopYear   = d1startYear;
-        }
-        if(!cbDoor2.isChecked()){
-            d2stopHour   = d2startHour;
-            d2stopMinute = d2startMinute;
-            d2stopDay    = d2startDay;
-            d2stopMonth  = d2startMonth;
-            d2stopYear   = d2startYear;
+            return null;//TODO handle this error
         }
 
         userAes = aesCursor.getBlob(aesCursor.getColumnIndex(LockDataContract.COLUMN_AES_KEY));
         userTag = (byte) aesCursor.getInt(aesCursor.getColumnIndex(LockDataContract.COLUMN_AES_MEM_PAGE));
         aesRowId = aesCursor.getLong(aesCursor.getColumnIndex(LockDataContract._ID));
 
-        ContentValues contentValues = new ContentValues();
+        ContentValues contentValues = new ContentValues();//mark found AES key as used
         contentValues.put(LockDataContract.COLUMN_AES_KEY_USED_FLAG, 1);
         mDb.update(LockDataContract.TABLE_NAME_AES_DATA, contentValues,
                 LockDataContract._ID + "= ?", new String[] {String.valueOf(aesRowId)});
-
-        System.arraycopy(userAes, 0, userIdAsAes, 0, 4);
         passData = keyCursor.getBlob(keyCursor.getColumnIndex(LockDataContract.COLUMN_KEY_DATA));
 
-        door1StartTime = timeIntToHex(d1startHour, d1startMinute, d1startDay, d1startMonth, d1startYear);
-        door1StopTime =  timeIntToHex(d1stopHour,  d1stopMinute,  d1stopDay,  d1stopMonth,  d1stopYear);
-
-        door2StartTime = timeIntToHex(d2startHour, d2startMinute, d2startDay, d2startMonth, d2startYear);
-        door2StopTime = timeIntToHex(d2stopHour, d2stopMinute, d2stopDay, d2stopMonth, d2stopYear);
-
-        System.arraycopy(door1StartTime, 0, doorAccessTime, 0, 5);
-        System.arraycopy(door1StopTime, 0, doorAccessTime, 5, 5);
-        System.arraycopy(door2StartTime, 0, doorAccessTime, 10, 5);
-        System.arraycopy(door2StopTime, 0, doorAccessTime, 15, 5);
-
-        System.arraycopy(userIdAsAes, 0, plainWord, 0, 4);
-        System.arraycopy(passData, 0, plainWord, 4, 8);
-        System.arraycopy(doorAccessTime, 0, plainWord, 12, 20);
-
         secretKey = lockCursor.getBlob(lockCursor.getColumnIndex(LockDataContract.COLUMN_SECRET_KEY));
-        String ip = lockCursor.getString(lockCursor.getColumnIndex(LockDataContract.COLUMN_CIPSTA_IP));
         int mode = lockCursor.getInt(lockCursor.getColumnIndex(LockDataContract.COLUMN_CWMODE));
+        String ip;//= lockCursor.getString(lockCursor.getColumnIndex(LockDataContract.COLUMN_CIPSTA_IP));
         if(mode == 2) {//private static final int SOFTAP = 2;
-            ip = "192.168.4.1";
+            ip = ESP_AP_STATIC_IP;
+        }else{
+            ip = lockCursor.getString(lockCursor.getColumnIndex(LockDataContract.COLUMN_CIPSTA_IP));
         }
         ipAddr = ipStrToHex(ip);
         String s = lockCursor.getString(lockCursor.getColumnIndex(LockDataContract.COLUMN_DOOR1_ID));
         doorId = Base64.decode(s, Base64.DEFAULT);
 
 
-        byte[] tempIV = new byte[16];
-        System.arraycopy(userAes, 0, tempIV, 0, 16);
-        secretWord = encrypt(plainWord, tempIV, secretKey);
+        if(codeType == GENERAL_CODE_TYPE){
+            accessCode = new byte[78];
 
-        System.arraycopy(userAes, 0, accessCode, 0, 16);
-        System.arraycopy(secretWord, 0, accessCode, 16, 32);
-        System.arraycopy(ipAddr, 0, accessCode, 48, 4);
-        System.arraycopy(doorId, 0, accessCode, 52, 4);
-        accessCode[56] = userTag;
+            if(!cbDoor1.isChecked()){
+                d1stopHour   = d1startHour;
+                d1stopMinute = d1startMinute;
+                d1stopDay    = d1startDay;
+                d1stopMonth  = d1startMonth;
+                d1stopYear   = d1startYear;
+            }
+            if(!cbDoor2.isChecked()){
+                d2stopHour   = d2startHour;
+                d2stopMinute = d2startMinute;
+                d2stopDay    = d2startDay;
+                d2stopMonth  = d2startMonth;
+                d2stopYear   = d2startYear;
+            }
+            door1StartTime = timeIntToHex(d1startHour, d1startMinute, d1startDay, d1startMonth, d1startYear);
+            door1StopTime =  timeIntToHex(d1stopHour,  d1stopMinute,  d1stopDay,  d1stopMonth,  d1stopYear);
 
-        System.arraycopy(doorAccessTime, 0, accessCode, 57, 20);
-        byte[] toXor = new byte[77];
-        System.arraycopy(accessCode, 0, toXor, 0, 77);
-        accessCode[77] = XORcalc(toXor);
+            door2StartTime = timeIntToHex(d2startHour, d2startMinute, d2startDay, d2startMonth, d2startYear);
+            door2StopTime = timeIntToHex(d2stopHour, d2stopMinute, d2stopDay, d2stopMonth, d2stopYear);
+
+            System.arraycopy(userAes, 0, userIdAsAes, 0, 4);
+            System.arraycopy(door1StartTime, 0, doorAccessTime, 0, 5);
+            System.arraycopy(door1StopTime, 0, doorAccessTime, 5, 5);
+            System.arraycopy(door2StartTime, 0, doorAccessTime, 10, 5);
+            System.arraycopy(door2StopTime, 0, doorAccessTime, 15, 5);
+
+            System.arraycopy(userIdAsAes, 0, plainWord, 0, 4);
+            System.arraycopy(passData, 0, plainWord, 4, 8);
+            System.arraycopy(doorAccessTime, 0, plainWord, 12, 20);
+
+
+            System.arraycopy(userAes, 0, tempIV, 0, 16);
+            secretWord = encrypt(plainWord, tempIV, secretKey);
+
+            System.arraycopy(userAes, 0, accessCode, 0, 16);
+            System.arraycopy(secretWord, 0, accessCode, 16, 32);
+            System.arraycopy(ipAddr, 0, accessCode, 48, 4);
+            System.arraycopy(doorId, 0, accessCode, 52, 4);
+            accessCode[56] = userTag;
+
+            System.arraycopy(doorAccessTime, 0, accessCode, 57, 20);
+            byte[] toXor = new byte[77];
+            System.arraycopy(accessCode, 0, toXor, 0, 77);
+            accessCode[77] = XORcalc(toXor);
+
+
+
+        }else if(codeType == MULTILOCK_CODE_TYPE){
+            door1StopTime =  timeIntToHex(d1stopHour,  d1stopMinute,  d1stopDay,  d1stopMonth,  d1stopYear);
+            userIdAsAes = new byte[3];
+            System.arraycopy(userAes, 0, userIdAsAes, 0, 3);
+            byte[] plainSecretWord = joinByteArrays(userIdAsAes, passData, door1StopTime); //16 bytes
+            System.arraycopy(userAes, 0, tempIV, 0, 16);
+            byte[] encryptedSecretWord = encrypt(plainSecretWord, tempIV, secretKey); //16 bytes
+            byte[] uTag = {userTag};// 1 byte
+            byte[] additionalLocks = getIPsAndIDsOfRestLocks(lockCursor.getLong(lockCursor.getColumnIndex(LockDataContract._ID))); //8*N bytes (N = 0, 1, 2 ...)
+            byte[] userAesCut = new byte[16];
+            System.arraycopy(userAes, 0, userAesCut, 0, 16);
+            byte[] aCode = joinByteArrays(userAesCut, encryptedSecretWord, uTag, door1StopTime, ipAddr, doorId, additionalLocks);// 16 + 16 + 1 + 5 + 4 + 4 + 8*N = 46 + 8*N
+            byte[] xor = {XORcalc(aCode)};
+            accessCode = joinByteArrays(aCode, xor);// 47 + 8*N
+
+        }
+
+
         return accessCode;
+    }
+
+    private byte[] joinByteArrays(byte[] ... arrays){
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        try{
+            for(byte[] array : arrays){
+                output.write(array);
+            }
+        }catch(Exception e){
+            return null;
+        }
+        return output.toByteArray();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(lockCursor != null){
+            lockCursor.close();
+        }
+        if(keyCursor != null){
+            keyCursor.close();
+        }
+        if(aesCursor != null){
+            aesCursor.close();
+        }
+
+
+    }
+
+    private byte[] getIPsAndIDsOfRestLocks(long exceptLockRowId){
+        Cursor cursor = getAllLocks();
+        cursor.moveToPosition(0);
+        byte[] out = {};
+        do{
+            if(exceptLockRowId == cursor.getLong(cursor.getColumnIndex(LockDataContract._ID)))
+                continue;
+            int mode = cursor.getInt(cursor.getColumnIndex(LockDataContract.COLUMN_CWMODE));
+            String ip;//= lockCursor.getString(lockCursor.getColumnIndex(LockDataContract.COLUMN_CIPSTA_IP));
+            if(mode == 2) {//private static final int SOFTAP = 2;
+                ip = ESP_AP_STATIC_IP;
+            }else{
+                ip = cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_CIPSTA_IP));
+            }
+            byte[] ipAddr = ipStrToHex(ip);
+            String s = cursor.getString(cursor.getColumnIndex(LockDataContract.COLUMN_DOOR1_ID));
+            byte[] doorId = Base64.decode(s, Base64.DEFAULT);
+            out = joinByteArrays(out, ipAddr, doorId);
+        }while(cursor.moveToNext());
+        cursor.close();
+
+        return out;
     }
 
     public byte XORcalc(byte[] input){
@@ -723,6 +840,8 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
      * this function print access code on the screen
      * */
     void printAccessCode(byte[] accessCode){
+
+
 
     }
 
@@ -813,6 +932,18 @@ public class UserEditActivity extends AppCompatActivity implements DatePickerDia
             d2stopMinute = minute;
             bStopTimeDoor2.setText(String.format("%02d:%02d\n\n%02d.%02d.%02d", d2stopHour, d2stopMinute, d2stopDay, d2stopMonth, d2stopYear));
         }
+    }
+
+    private Cursor getAllLocks() {
+        return mDb.query(
+                LockDataContract.TABLE_NAME_LOCK_DATA,
+                null,
+                null,
+                null,
+                null,
+                null,
+                LockDataContract.COLUMN_TIMESTAMP
+        );
     }
 
 
